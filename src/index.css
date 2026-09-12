@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-page text-text-primary antialiased font-sans;
+  }
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.glass-header {
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.gold-gradient-badge {
+  background: linear-gradient(135deg, #FFF9E6 0%, #FFEAB3 100%);
+  border: 1px solid #F5D061;
+}
+
+.navy-gradient-bg {
+  background: linear-gradient(135deg, #082B57 0%, #051B38 100%);
+}
+
+/* Seamless Infinite Marquee Animations */
+@keyframes marquee-right-to-left {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-left-to-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-marquee-rtl {
+  display: inline-flex;
+  animation: marquee-right-to-left 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-ltr {
+  display: inline-flex;
+  animation: marquee-left-to-right 35s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-rtl:hover,
+.animate-marquee-ltr:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-rtl,
+  .animate-marquee-ltr {
+    animation: none !important;
+  }
+}
