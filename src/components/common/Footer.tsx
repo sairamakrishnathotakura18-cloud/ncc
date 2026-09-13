@@ -10,7 +10,7 @@ export const Footer: React.FC = () => {
         {/* Column 1: ITM University & NCC Emblem */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
-            <img src="/itm-logo.png" alt="ITM University Seal" className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shadow-md" />
+            <img src="/itm-logo.png" alt="ITM University Logo" className="h-10 w-auto object-contain" />
             <div className="w-9 h-11 flex items-center justify-center bg-white rounded-lg p-0.5 border border-slate-200 shadow-xs">
               <svg viewBox="0 0 100 120" className="w-full h-full">
                 <path d="M10 10 H90 V70 Q90 100 50 115 Q10 100 10 70 Z" fill="#D92D20" />

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NCC Digital Management Portal | Login & Registration</title>
+  <meta name="description" content="Official Login & Cadet Registration Portal for ITM University NCC.">
+  
+  <!-- Google Fonts & Tailwind CSS CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#082B57',
+              900: '#041224',
+            },
+            brand: {
+              DEFAULT: '#1677FF',
+              hover: '#0958d9',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #F0F4F8 0%, #E2E8F0 100%); color: #0F172A; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50/50 to-slate-200 text-slate-800 flex flex-col justify-between relative selection:bg-[#1677FF] selection:text-white">
+
+  <!-- 1. TOP BLUE CONTACT BAR -->
+  <div class="bg-[#082B57] text-white py-2.5 sm:py-3 px-3 sm:px-6 md:px-8 border-b border-slate-700 shadow-xs">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-[11px] sm:text-xs md:text-sm">
+      
+      <!-- Contact Info -->
+      <div class="flex flex-wrap items-center gap-3 sm:gap-6 font-medium">
+        <a href="tel:18002700031" class="flex items-center gap-1.5 hover:underline shrink-0">
+          <i data-lucide="phone" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300"></i>
+          <span>Call us : <strong class="text-white font-bold">18002700031</strong></span>
+        </a>
+        <span class="text-slate-500 hidden sm:inline">|</span>
+        <a href="mailto:erp@itmuniversity.ac.in" class="flex items-center gap-1.5 hover:underline shrink-0">
+          <i data-lucide="mail" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-300"></i>
+          <span>E-mail : <strong class="text-white font-bold">erp@itmuniversity.ac.in</strong></span>
+        </a>
+      </div>
+
+      <!-- Log in / Register Toggle -->
+      <div class="flex items-center space-x-3">
+        <button onclick="toggleView('login')" class="font-bold text-white hover:text-slate-200 hover:underline flex items-center gap-1 cursor-pointer">
+          <i data-lucide="log-in" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+          <span>Log in</span>
+        </button>
+        <span class="text-slate-500">|</span>
+        <button onclick="toggleView('register')" class="font-bold text-amber-300 hover:underline flex items-center gap-1 cursor-pointer">
+          <i data-lucide="user-plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+          <span>Register</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 2. MAIN BRANDING HEADER BAR -->
+  <header class="bg-white border-b border-slate-200 px-3 sm:px-6 md:px-8 py-3 sm:py-3.5 shadow-xs">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      
+      <!-- ITM Logo (Rectangular Style) -->
+      <a href="index.html" class="flex items-center gap-2.5 sm:gap-4 shrink-0">
+        <img
+          src="itm-logo.png"
+          onerror="this.src='public/itm-logo.png'"
+          alt="ITM University Logo"
+          class="h-9 sm:h-12 md:h-14 object-contain"
+        />
+        <div class="h-7 sm:h-8 w-px bg-slate-300 hidden sm:block"></div>
+        <div class="hidden sm:block">
+          <span class="text-xs sm:text-sm font-black text-[#082B57] uppercase tracking-wide block">
+            ITM UNIVERSITY GWALIOR
+          </span>
+          <span class="text-[10px] sm:text-xs font-bold text-slate-600 block">
+            NCC Digital Management Portal
+          </span>
+        </div>
+      </a>
+
+      <!-- Home Link -->
+      <a
+        href="index.html"
+        class="text-xs sm:text-sm md:text-base font-bold text-slate-700 hover:text-[#082B57] transition-colors flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-100"
+      >
+        <i data-lucide="home" class="w-4 h-4 text-[#082B57]"></i>
+        <span>Home</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- TOAST NOTIFICATION FLOATER -->
+  <div id="toast-container" class="hidden fixed top-20 right-3 sm:right-8 z-50 animate-fadeIn">
+    <div id="toast-box" class="px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 border text-xs sm:text-sm font-bold bg-emerald-950 text-emerald-200 border-emerald-500/50">
+      <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400 shrink-0"></i>
+      <span id="toast-text">Action Successful!</span>
+    </div>
+  </div>
+
+  <!-- 3. MAIN CENTERED CARD CONTAINER (LOGIN & REGISTRATION BOX) -->
+  <main class="max-w-7xl mx-auto w-full px-3 sm:px-6 py-6 sm:py-12 md:py-16 flex-1 flex items-center justify-center">
+    
+    <!-- ==========================================
+         LOGIN BOX VIEW
+         ========================================== -->
+    <div id="login-box-container" class="bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200/80 p-5 sm:p-8 md:p-10 w-full max-w-[350px] sm:max-w-md md:max-w-lg mx-auto space-y-5 sm:space-y-6">
+      
+      <!-- ITM Logo & Title -->
+      <div class="text-center">
+        <img
+          src="itm-logo.png"
+          onerror="this.src='public/itm-logo.png'"
+          alt="ITM University Logo"
+          class="h-12 sm:h-16 md:h-18 object-contain mx-auto mb-2 sm:mb-3"
+        />
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">NCC Portal Login</h2>
+        <p class="text-[11px] sm:text-xs text-slate-500 font-bold pt-0.5 sm:pt-1">National Cadet Corps • ITM University Gwalior</p>
+      </div>
+
+      <!-- Role Selector Tabs -->
+      <div class="space-y-1">
+        <div class="grid grid-cols-3 gap-1 sm:gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-center">
+          <button
+            type="button"
+            id="btn-role-student"
+            onclick="switchRole('student')"
+            class="py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all cursor-pointer bg-[#1677FF] text-white shadow-xs"
+          >
+            STUDENT
+          </button>
+          <button
+            type="button"
+            id="btn-role-officer"
+            onclick="switchRole('officer')"
+            class="py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-200"
+          >
+            OFFICER
+          </button>
+          <button
+            type="button"
+            id="btn-role-admin"
+            onclick="switchRole('admin')"
+            class="py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-200"
+          >
+            ADMIN
+          </button>
+        </div>
+        <span id="role-badge-text" class="text-[10px] sm:text-[11px] text-[#1677FF] font-semibold block text-center pt-0.5 sm:pt-1">
+          Cadet Portal Access
+        </span>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <form id="login-form" onsubmit="handleFormSubmit(event)" class="space-y-3.5 sm:space-y-4 text-xs sm:text-sm">
+        
+        <!-- Email / Username Field -->
+        <div>
+          <label id="input-label" class="font-bold text-slate-700 block mb-1 sm:mb-1.5 text-xs">
+            Email / Username
+          </label>
+          <input
+            type="text"
+            id="identifier-input"
+            required
+            value="betn1ai25216"
+            placeholder="Enter your email"
+            class="w-full px-3.5 sm:px-4 py-2.5 sm:py-3 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#1677FF] focus:ring-1 focus:ring-[#1677FF] transition-all text-xs sm:text-sm"
+          />
+        </div>
+
+        <!-- Password Field -->
+        <div>
+          <label class="font-bold text-slate-700 block mb-1 sm:mb-1.5 text-xs">
+            Password
+          </label>
+          <div class="relative">
+            <input
+              type="password"
+              id="password-input"
+              required
+              value="password123"
+              placeholder="Enter your password"
+              class="w-full pl-3.5 sm:pl-4 pr-10 py-2.5 sm:py-3 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#1677FF] focus:ring-1 focus:ring-[#1677FF] transition-all text-xs sm:text-sm"
+            />
+            <button
+              type="button"
+              onclick="togglePasswordVisibility()"
+              class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+            >
+              <i data-lucide="eye" id="eye-icon" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Forgot Password Link -->
+        <div class="text-right pt-0.5">
+          <button
+            type="button"
+            onclick="toggleForgotModal(true)"
+            class="text-[#1677FF] hover:underline text-xs font-semibold cursor-pointer"
+          >
+            Forgot password?
+          </button>
+        </div>
+
+        <!-- Sign In Button -->
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full bg-[#1677FF] hover:bg-blue-600 active:scale-[0.99] text-white font-bold py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm transition-all cursor-pointer shadow-md"
+        >
+          <span id="submit-btn-text">Sign In</span>
+        </button>
+      </form>
+
+      <!-- REGISTER OPTION INSIDE LOGIN BOX -->
+      <div class="pt-2 border-t border-slate-200 text-center space-y-2">
+        <p class="text-xs text-slate-600 font-medium">Need an account to manage your NCC profile?</p>
+        <button
+          type="button"
+          onclick="toggleView('register')"
+          class="w-full bg-slate-100 hover:bg-slate-200 text-[#082B57] font-bold py-2.5 rounded-xl border border-slate-300 transition-colors text-xs sm:text-sm flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <i data-lucide="user-plus" class="w-4 h-4 text-[#1677FF]"></i>
+          <span>Register for NCC</span>
+        </button>
+      </div>
+
+      <!-- Bottom Info Box -->
+      <div class="bg-slate-100/80 border border-slate-200/80 rounded-xl p-2.5 sm:p-3 text-center text-[11px] sm:text-xs text-slate-500 font-medium">
+        Enter your registered email and password to login
+      </div>
+
+    </div>
+
+    <!-- ==========================================
+         REGISTRATION BOX VIEW (NCC DETAILS)
+         ========================================== -->
+    <div id="register-box-container" class="hidden bg-white rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200/80 p-5 sm:p-8 md:p-10 w-full max-w-[360px] sm:max-w-lg md:max-w-xl mx-auto space-y-5 sm:space-y-6">
+      
+      <!-- ITM Logo & Header -->
+      <div class="text-center">
+        <img
+          src="itm-logo.png"
+          onerror="this.src='public/itm-logo.png'"
+          alt="ITM University Logo"
+          class="h-12 sm:h-16 object-contain mx-auto mb-2"
+        />
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">NCC Cadet Registration</h2>
+        <p class="text-[11px] sm:text-xs text-slate-500 font-bold pt-0.5">ITM University Gwalior • Army & Naval Units</p>
+      </div>
+
+      <!-- Back to Login Navigation Button -->
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3 text-xs">
+        <span class="font-bold text-slate-700">New Cadet Enrollment Form</span>
+        <button
+          type="button"
+          onclick="toggleView('login')"
+          class="text-[#1677FF] hover:underline font-bold flex items-center gap-1 cursor-pointer"
+        >
+          <i data-lucide="arrow-left" class="w-4 h-4"></i>
+          <span>Back to Login</span>
+        </button>
+      </div>
+
+      <!-- REGISTRATION FORM -->
+      <form id="register-form" onsubmit="handleRegisterSubmit(event)" class="space-y-4 text-xs sm:text-sm">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          
+          <!-- 1. Full Name -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              Full Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Rahul Sharma"
+              class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm"
+            />
+          </div>
+
+          <!-- 2. Cadet / Student ID -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              Cadet / Student ID <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. MP/2026/SD/10045"
+              class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm"
+            />
+          </div>
+
+          <!-- 3. Email -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              Email Address <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              required
+              placeholder="e.g. cadet@itm.edu.in"
+              class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm"
+            />
+          </div>
+
+          <!-- 4. Mobile Number -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              Mobile Number <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              required
+              placeholder="e.g. 9876543210"
+              class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm"
+            />
+          </div>
+
+          <!-- 5. Date of Birth -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              Date of Birth <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="date"
+              required
+              class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm"
+            />
+          </div>
+
+          <!-- 6. College / Institution -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              College / Institution <span class="text-red-500">*</span>
+            </label>
+            <select required class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm">
+              <option value="">Select Institution</option>
+              <option value="ITM University Gwalior" selected>ITM University Gwalior</option>
+              <option value="School of Engineering & Tech (SET)">School of Engineering & Tech (SET)</option>
+              <option value="School of Management (SOM)">School of Management (SOM)</option>
+              <option value="School of Science (SOS)">School of Science (SOS)</option>
+            </select>
+          </div>
+
+          <!-- 7. NCC Unit -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              NCC Unit <span class="text-red-500">*</span>
+            </label>
+            <select required class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm">
+              <option value="">Select NCC Unit</option>
+              <option value="8 MP Artillery Battalion">8 MP Artillery Battalion (Boys)</option>
+              <option value="3 MP Artillery Girls Battalion">3 MP Artillery Girls Battalion (SW)</option>
+              <option value="3 MP Naval Unit">3 MP Naval Unit (Army/Navy)</option>
+            </select>
+          </div>
+
+          <!-- 8. Rank -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              Rank <span class="text-red-500">*</span>
+            </label>
+            <select required class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm">
+              <option value="Cadet (CDT)">Cadet (CDT)</option>
+              <option value="Lance Corporal (L/CPL)">Lance Corporal (L/CPL)</option>
+              <option value="Corporal (CPL)">Corporal (CPL)</option>
+              <option value="Sergeant (SGT)">Sergeant (SGT)</option>
+              <option value="Under Officer (UO)">Under Officer (UO)</option>
+              <option value="Senior Under Officer (SUO)">Senior Under Officer (SUO)</option>
+            </select>
+          </div>
+
+          <!-- 9. Password -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              Password <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              required
+              placeholder="Create password"
+              class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm"
+            />
+          </div>
+
+          <!-- 10. Confirm Password -->
+          <div>
+            <label class="font-bold text-slate-700 block mb-1 text-xs">
+              Confirm Password <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="password"
+              required
+              placeholder="Confirm password"
+              class="w-full px-3.5 py-2.5 bg-slate-100/80 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm"
+            />
+          </div>
+
+        </div>
+
+        <!-- Submit Registration Button -->
+        <button
+          type="submit"
+          id="register-submit-btn"
+          class="w-full bg-[#1677FF] hover:bg-blue-600 active:scale-[0.99] text-white font-bold py-3 rounded-xl text-xs sm:text-sm transition-all cursor-pointer shadow-md mt-2"
+        >
+          <span id="register-btn-text">Submit Registration</span>
+        </button>
+
+        <!-- Back to Login Switch -->
+        <div class="text-center pt-2">
+          <span class="text-xs text-slate-600">Already registered? </span>
+          <button
+            type="button"
+            onclick="toggleView('login')"
+            class="text-[#1677FF] hover:underline font-bold text-xs cursor-pointer"
+          >
+            Sign In here →
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </main>
+
+  <!-- 4. FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-3.5 sm:py-4 px-3 sm:px-6 md:px-8">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-4 text-center sm:text-left">
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <img
+          src="itm-logo.png"
+          onerror="this.src='public/itm-logo.png'"
+          alt="ITM Logo"
+          class="h-6 sm:h-7 object-contain"
+        />
+        <div>
+          <span class="text-[11px] sm:text-xs font-bold text-[#082B57] block">ITM UNIVERSITY NCC DIGITAL MANAGEMENT</span>
+          <span class="text-[10px] sm:text-[11px] text-slate-500 block">Unity and Discipline • Army & Naval Units</span>
+        </div>
+      </div>
+      <div class="text-[10px] sm:text-xs text-slate-500">
+        © 2026 ITM University Gwalior. All Rights Reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- FORGOT PASSWORD MODAL -->
+  <div id="forgot-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl p-5 sm:p-7 max-w-[340px] sm:max-w-sm w-full shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-bold text-slate-900">Reset Your Password</h3>
+        <button onclick="toggleForgotModal(false)" class="text-slate-400 hover:text-slate-600 font-bold text-lg cursor-pointer">✕</button>
+      </div>
+
+      <div id="forgot-form-view" class="space-y-4 text-xs">
+        <p class="text-slate-600 leading-relaxed">
+          Enter your registered email address or student ID and we'll send instructions to reset your password.
+        </p>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Email / Student ID</label>
+          <input
+            type="text"
+            id="forgot-email-input"
+            required
+            placeholder="Enter your email"
+            class="w-full px-3.5 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:bg-white focus:border-[#1677FF] text-xs sm:text-sm"
+          />
+        </div>
+        <button onclick="handleForgotSubmit()" class="w-full bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl transition-colors cursor-pointer shadow-sm text-xs sm:text-sm">
+          Send Reset Link
+        </button>
+      </div>
+
+      <div id="forgot-success-view" class="hidden space-y-4 text-xs text-center py-2">
+        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 border border-emerald-300 flex items-center justify-center mx-auto">
+          <i data-lucide="check" class="w-5 h-5"></i>
+        </div>
+        <h4 class="font-bold text-slate-900 text-sm">Reset Link Sent</h4>
+        <p class="text-slate-600">
+          Please check your registered email inbox for password recovery instructions.
+        </p>
+        <button
+          type="button"
+          onclick="toggleForgotModal(false)"
+          class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl transition-colors cursor-pointer text-xs sm:text-sm"
+        >
+          Back to Login
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    let currentRole = 'student';
+
+    const roleConfigs = {
+      student: {
+        label: 'Email / Username',
+        placeholder: 'Enter your email',
+        defaultId: 'betn1ai25216',
+        badge: 'Cadet Portal Access',
+      },
+      officer: {
+        label: 'Officer Email / ID',
+        placeholder: 'Enter officer email',
+        defaultId: 'ANO/ITM/2026/04',
+        badge: 'ANO Officer Portal Access',
+      },
+      admin: {
+        label: 'Admin Email / ID',
+        placeholder: 'Enter admin email',
+        defaultId: 'ADM/ITM/NCC/01',
+        badge: 'Battalion Admin Portal Access',
+      }
+    };
+
+    function toggleView(view) {
+      const loginBox = document.getElementById('login-box-container');
+      const registerBox = document.getElementById('register-box-container');
+
+      if (view === 'register') {
+        loginBox.classList.add('hidden');
+        registerBox.classList.remove('hidden');
+        registerBox.classList.add('animate-fadeIn');
+      } else {
+        registerBox.classList.add('hidden');
+        loginBox.classList.remove('hidden');
+        loginBox.classList.add('animate-fadeIn');
+      }
+    }
+
+    // Check URL hash on page load
+    if (window.location.hash === '#register') {
+      toggleView('register');
+    }
+
+    function switchRole(role) {
+      currentRole = role;
+      const roles = ['student', 'officer', 'admin'];
+      
+      roles.forEach(r => {
+        const btn = document.getElementById(`btn-role-${r}`);
+        if (r === role) {
+          btn.className = "py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all cursor-pointer bg-[#1677FF] text-white shadow-xs";
+        } else {
+          btn.className = "py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg text-[10px] sm:text-xs font-bold uppercase transition-all cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-200";
+        }
+      });
+
+      const config = roleConfigs[role];
+      document.getElementById('input-label').innerText = config.label;
+      document.getElementById('identifier-input').value = config.defaultId;
+      document.getElementById('identifier-input').placeholder = config.placeholder;
+      document.getElementById('role-badge-text').innerText = config.badge;
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('password-input');
+      if (input.type === 'password') {
+        input.type = 'text';
+      } else {
+        input.type = 'password';
+      }
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const btnText = document.getElementById('submit-btn-text');
+      
+      btnText.innerText = "Signing In...";
+      btn.disabled = true;
+
+      setTimeout(() => {
+        const toast = document.getElementById('toast-container');
+        const toastText = document.getElementById('toast-text');
+        toastText.innerText = `Login Successful! Entering ${currentRole.toUpperCase()} Portal...`;
+        toast.classList.remove('hidden');
+
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1200);
+      }, 1000);
+    }
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const btnText = document.getElementById('register-btn-text');
+      btnText.innerText = "Submitting...";
+
+      setTimeout(() => {
+        const toast = document.getElementById('toast-container');
+        const toastText = document.getElementById('toast-text');
+        toastText.innerText = "Registration Submitted Successfully! Returning to Login...";
+        toast.classList.remove('hidden');
+
+        setTimeout(() => {
+          btnText.innerText = "Submit Registration";
+          toggleView('login');
+        }, 1500);
+      }, 1000);
+    }
+
+    function toggleForgotModal(show) {
+      const modal = document.getElementById('forgot-modal');
+      const formView = document.getElementById('forgot-form-view');
+      const successView = document.getElementById('forgot-success-view');
+
+      if (show) {
+        modal.classList.remove('hidden');
+        formView.classList.remove('hidden');
+        successView.classList.add('hidden');
+      } else {
+        modal.classList.add('hidden');
+      }
+    }
+
+    function handleForgotSubmit() {
+      const email = document.getElementById('forgot-email-input').value;
+      if (!email) return;
+      document.getElementById('forgot-form-view').classList.add('hidden');
+      document.getElementById('forgot-success-view').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

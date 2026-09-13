@@ -29,7 +29,7 @@ export const Navbar: React.FC = () => {
           <Link to="/" className="flex items-center gap-3 group">
             {/* Dual Emblem Badge: ITM Logo Box + Official NCC Crest Shield */}
             <div className="flex items-center space-x-2">
-              <img src="/itm-logo.png" alt="ITM University Seal" className="w-12 h-12 rounded-full object-cover shadow-md border-2 border-amber-400 group-hover:scale-105 transition-transform" />
+              <img src="/itm-logo.png" alt="ITM University Logo" className="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform" />
               <div className="w-10 h-12 flex items-center justify-center bg-white rounded-lg p-0.5 border border-slate-200 shadow-xs">
                 {/* Official NCC Crest Shield Tri-Band SVG */}
                 <svg viewBox="0 0 100 120" className="w-full h-full">
@@ -112,35 +112,35 @@ export const Navbar: React.FC = () => {
             </Link>
           </nav>
 
-          {/* Right Action / Login Button */}
-          <div className="hidden lg:flex items-center gap-3">
+          {/* Right Action Container: Login Button & Mobile 3-Lines Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {isAuthenticated ? (
               <Link
                 to={`/${user?.role}/dashboard`}
-                className="bg-[#0F2942] hover:bg-[#1B3E60] text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                className="bg-[#0F2942] hover:bg-[#1B3E60] text-white px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
               >
                 <UserCheck className="w-4 h-4 text-amber-400" />
-                <span>{user?.role.toUpperCase()} Dashboard</span>
+                <span>Dashboard</span>
               </Link>
             ) : (
               <Link
                 to="/login"
-                className="bg-[#1677FF] hover:bg-blue-700 text-white px-6 py-2.5 rounded-full font-bold text-xs shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                className="bg-[#1677FF] hover:bg-blue-700 text-white px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-full font-bold text-xs shadow-md transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0"
               >
-                <LogIn className="w-4 h-4" />
+                <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Login</span>
               </Link>
             )}
-          </div>
 
-          {/* Mobile Hamburger Button */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 rounded-xl text-slate-800 hover:bg-slate-100 transition-colors"
-            aria-label="Toggle Navigation"
-          >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+            {/* Mobile Hamburger 3-Lines Button (Only for mobile view, hidden on desktop) */}
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="lg:hidden p-2 rounded-xl text-slate-800 hover:bg-slate-100 transition-colors focus:outline-none cursor-pointer"
+              aria-label="Toggle Navigation"
+            >
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
