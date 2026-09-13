@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Shield, Anchor, Award, Users, Calendar, ArrowRight, ChevronRight,
-  Sparkles, CheckCircle2, Trophy, MapPin, Building, Mail, Phone, ExternalLink
+  Sparkles, CheckCircle2, Trophy, MapPin, Building, Mail, Phone, ExternalLink, Tent, Star
 } from 'lucide-react';
 import { mockCamps } from '../../data/camps';
 import { mockNotices } from '../../data/notices';
 import { mockAchievements } from '../../data/achievements';
 import { mockUnits } from '../../data/wings';
 import { mockOfficers } from '../../data/officers';
+import { mockNccLeaders, NccLeader } from '../../data/leaders';
 import { CampCard } from '../../components/cards/CampCard';
+import { HeroLeaderGallery } from '../../components/common/HeroLeaderGallery';
+import { LeadersSection } from '../../components/common/LeadersSection';
 import { OfficerCarousel } from '../../components/common/OfficerCarousel';
 import { AchieverSection } from '../../components/common/AchieverSection';
 import { CampEligibilityModal } from '../../components/common/CampEligibilityModal';
@@ -20,6 +23,7 @@ export const Home: React.FC = () => {
   const [selectedCamp, setSelectedCamp] = useState<Camp | null>(null);
   const [selectedOfficer, setSelectedOfficer] = useState<Officer | null>(null);
   const [selectedAchievement, setSelectedAchievement] = useState<Achievement | null>(null);
+  const [selectedLeader, setSelectedLeader] = useState<NccLeader | null>(null);
   const [campCategoryTab, setCampCategoryTab] = useState<'All' | 'General' | 'National-Level'>('All');
 
   const filteredCamps = mockCamps.filter(c => campCategoryTab === 'All' || c.category === campCategoryTab);
@@ -35,7 +39,7 @@ export const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
           
           {/* Hero Left Content */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+          <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
             <span className="inline-flex items-center gap-2 bg-white/10 text-amber-300 text-xs font-bold px-3.5 py-1.5 rounded-full backdrop-blur-md border border-white/10 shadow-xs">
               <Sparkles className="w-3.5 h-3.5 text-[#F5D061]" /> ITM NCC • NATIONAL CADET CORPS MANAGEMENT PORTAL
             </span>
@@ -48,135 +52,63 @@ export const Home: React.FC = () => {
             </h1>
 
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-normal">
-              Empowering Cadets. Connecting Units. Managing NCC Digitally. A unified digital management portal for ITM University's Army Unit and Naval Unit — managing camps, training, attendance, certificates, achievements and officer leadership.
+              Empowering Cadets. Connecting Units. Managing NCC Digitally. A unified digital management portal for ITM University's Army Unit and Naval Unit — managing camps, training, attendance, certificates, achievements, and officer leadership.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            {/* CTA Buttons (Req 5: REMOVE EXPLORE CAMPS, Keep JOIN NCC + LOGIN PORTAL) */}
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
               <Link
                 to="/join"
-                className="w-full sm:w-auto bg-[#1677FF] hover:bg-blue-600 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group text-sm"
+                className="bg-[#1677FF] hover:bg-blue-600 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group text-sm"
               >
                 <span>JOIN NCC</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                to="/camps"
-                className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 text-sm"
-              >
-                <span>EXPLORE CAMPS</span>
-              </Link>
-              <Link
                 to="/login"
-                className="w-full sm:w-auto bg-[#F5D061] hover:bg-amber-400 text-[#082B57] font-extrabold px-6 py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm"
+                className="bg-[#F5D061] hover:bg-amber-400 text-[#082B57] font-extrabold px-8 py-3.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 text-sm"
               >
                 <span>LOGIN PORTAL</span>
               </Link>
             </div>
           </div>
 
-          {/* Hero Right Visual Card */}
-          <div className="lg:col-span-5 flex justify-center">
-            <div className="w-full max-w-md bg-white/10 border border-white/15 p-6 rounded-3xl backdrop-blur-md shadow-2xl space-y-5">
-              
-              {/* Crest & Unit Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-14 bg-white rounded-xl p-1 border border-slate-300 shadow-md flex items-center justify-center shrink-0">
-                    <svg viewBox="0 0 100 120" className="w-full h-full">
-                      <path d="M10 10 H90 V70 Q90 100 50 115 Q10 100 10 70 Z" fill="#D92D20" />
-                      <path d="M35 10 H65 V107 Q50 115 35 107 Z" fill="#082B57" />
-                      <path d="M65 10 H90 V70 Q90 100 50 115 V107 Q65 107 65 10 Z" fill="#0EA5E9" />
-                      <circle cx="50" cy="55" r="28" fill="none" stroke="#F5D061" strokeWidth="4" strokeDasharray="4 2" />
-                      <text x="50" y="60" textAnchor="middle" fill="#F5D061" fontSize="20" fontWeight="900" fontFamily="sans-serif">NCC</text>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-white">ITM University NCC Cell</h3>
-                    <p className="text-xs text-amber-300 font-semibold">1st ITM Battalion (SD/SW)</p>
-                  </div>
-                </div>
-                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-1 rounded-full border border-emerald-400/30 shrink-0">
-                  Active Units
-                </span>
-              </div>
-
-              {/* Stats Summary */}
-              <div className="space-y-2.5 text-xs text-slate-200">
-                <div className="bg-white/5 p-3 rounded-xl flex items-center justify-between border border-white/5">
-                  <span className="text-slate-300">Total Enrolled Cadets</span>
-                  <span className="font-extrabold text-white text-sm">650 Cadets</span>
-                </div>
-                <div className="bg-white/5 p-3 rounded-xl flex items-center justify-between border border-white/5">
-                  <span className="text-slate-300">Active Units</span>
-                  <span className="font-extrabold text-[#F5D061]">Army Unit • Naval Unit</span>
-                </div>
-                <div className="bg-white/5 p-3 rounded-xl flex items-center justify-between border border-white/5">
-                  <span className="text-slate-300">Commanding Officer</span>
-                  <span className="font-bold text-white">Capt. Arindam Roy (ANO)</span>
-                </div>
-              </div>
-
-              {/* Governor Banner trophy highlight */}
-              <div className="bg-gradient-to-r from-amber-500/20 via-amber-400/10 to-transparent border border-amber-400/30 p-3.5 rounded-2xl text-xs font-semibold flex items-center gap-3">
-                <Award className="w-6 h-6 text-[#F5D061] shrink-0" />
-                <span className="text-amber-100 leading-snug">
-                  🏆 Winner of Governor's Best University NCC Company Banner 2026
-                </span>
-              </div>
-
-              {/* 14. LATEST ACHIEVEMENT HIGHLIGHT IN HERO CARD */}
-              <div className="bg-white/10 border border-amber-400/40 p-3.5 rounded-2xl space-y-2 text-xs">
-                <div className="flex items-center justify-between text-[10px] uppercase tracking-wider font-extrabold text-amber-300">
-                  <span>LATEST ACHIEVEMENT</span>
-                  <span className="bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded">2026</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"
-                    alt="Cadet Rahul Sharma"
-                    className="w-10 h-10 rounded-full object-cover border border-[#F5D061] shrink-0"
-                  />
-                  <div>
-                    <h4 className="font-bold text-white text-xs">Cadet Rahul Sharma</h4>
-                    <p className="text-[11px] text-amber-200">Republic Day Camp (RDC) Rajpath Parade</p>
-                  </div>
-                </div>
-                <a
-                  href="#achievers-section"
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#F5D061] hover:underline pt-1"
-                >
-                  <span>View All Achievements</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-            </div>
+          {/* Hero Right Visual Gallery (Req 1 & 2 & 3: Horizontal Scrolling Profile Cards) */}
+          <div className="lg:col-span-6 flex justify-center w-full min-w-0">
+            <HeroLeaderGallery onSelectLeader={(l) => setSelectedLeader(l)} />
           </div>
 
         </div>
       </section>
 
-      {/* 6. NCC STATISTICS CARDS */}
+      {/* 6. MODIFIED NCC STATISTICS CARDS (Req 4) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xl p-6 sm:p-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           <div className="space-y-1 border-r last:border-0 border-slate-100">
-            <span className="text-3xl sm:text-4xl font-extrabold text-[#082B57] tracking-tight block">650</span>
+            <span className="text-3xl sm:text-4xl font-extrabold text-[#082B57] tracking-tight block">650+</span>
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Enrolled Cadets</span>
           </div>
           <div className="space-y-1 border-r last:border-0 border-slate-100">
-            <span className="text-3xl sm:text-4xl font-extrabold text-[#1677FF] tracking-tight block">2 Units</span>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Army Unit • Naval Unit</span>
+            <span className="text-3xl sm:text-4xl font-extrabold text-[#1677FF] tracking-tight block">25+ Camps</span>
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-center gap-1">
+              <Tent className="w-3.5 h-3.5 text-[#1677FF]" /> Training & National Camps
+            </span>
           </div>
           <div className="space-y-1 border-r last:border-0 border-slate-100">
-            <span className="text-3xl sm:text-4xl font-extrabold text-[#0EA5E9] tracking-tight block">12</span>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Upcoming Camps</span>
+            <span className="text-3xl sm:text-4xl font-extrabold text-amber-600 tracking-tight block">50+ Achievements</span>
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-center gap-1">
+              <Trophy className="w-3.5 h-3.5 text-amber-500" /> Awards & Recognitions
+            </span>
           </div>
           <div className="space-y-1">
-            <span className="text-3xl sm:text-4xl font-extrabold text-amber-600 tracking-tight block">428</span>
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Verified Certificates</span>
+            <span className="text-3xl sm:text-4xl font-extrabold text-[#0EA5E9] tracking-tight block">428+</span>
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Verified Credentials</span>
           </div>
         </div>
       </section>
+
+      {/* 13. MEET OUR NCC LEADERS & ACHIEVERS SECTION (Req 13: Honoris Causa style section) */}
+      <LeadersSection onSelectLeader={(l) => setSelectedLeader(l)} />
 
       {/* 7. ARMY + NAVAL UNITS */}
       <section id="units" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4">
@@ -328,6 +260,45 @@ export const Home: React.FC = () => {
           isOpen={!!selectedCamp}
           onClose={() => setSelectedCamp(null)}
         />
+      )}
+
+      {/* LEADER DETAIL MODAL */}
+      {selectedLeader && (
+        <Modal
+          isOpen={!!selectedLeader}
+          onClose={() => setSelectedLeader(null)}
+          title={`Profile — ${selectedLeader.name}`}
+        >
+          <div className="space-y-4 text-xs text-slate-700">
+            <div className="flex items-center gap-4 border-b border-slate-200 pb-4">
+              <img
+                src={selectedLeader.photo}
+                alt={selectedLeader.name}
+                className="w-20 h-20 rounded-xl object-cover border-2 border-[#F5D061] shadow-xs"
+              />
+              <div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded shadow-2xs ${selectedLeader.badgeBg}`}>
+                  {selectedLeader.badgeText}
+                </span>
+                <h3 className="text-base font-extrabold text-[#082B57] mt-1">{selectedLeader.name}</h3>
+                <p className="text-xs text-blue-600 font-bold">{selectedLeader.rank} • {selectedLeader.designation}</p>
+                <span className="text-[10px] bg-slate-100 text-slate-800 font-bold px-2 py-0.5 rounded inline-block mt-1">
+                  {selectedLeader.unit}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-bold text-[#082B57] text-xs">Achievement & Responsibility</h4>
+              <p className="text-slate-800 font-medium leading-relaxed bg-blue-50/70 p-3 rounded-xl border border-blue-100">
+                🏆 {selectedLeader.achievement}
+              </p>
+              <p className="text-slate-600 leading-relaxed italic bg-slate-50 p-3 rounded-xl border border-slate-200">
+                "{selectedLeader.roleDescription}"
+              </p>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* OFFICER DETAIL MODAL */}

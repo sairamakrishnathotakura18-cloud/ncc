@@ -29,9 +29,7 @@ export const Navbar: React.FC = () => {
           <Link to="/" className="flex items-center gap-3 group">
             {/* Dual Emblem Badge: ITM Logo Box + Official NCC Crest Shield */}
             <div className="flex items-center space-x-2">
-              <div className="w-11 h-11 rounded-xl bg-[#0F2942] text-white flex items-center justify-center font-black text-sm shadow-md border border-slate-300 group-hover:scale-105 transition-transform">
-                ITM
-              </div>
+              <img src="/itm-logo.png" alt="ITM University Seal" className="w-12 h-12 rounded-full object-cover shadow-md border-2 border-amber-400 group-hover:scale-105 transition-transform" />
               <div className="w-10 h-12 flex items-center justify-center bg-white rounded-lg p-0.5 border border-slate-200 shadow-xs">
                 {/* Official NCC Crest Shield Tri-Band SVG */}
                 <svg viewBox="0 0 100 120" className="w-full h-full">
