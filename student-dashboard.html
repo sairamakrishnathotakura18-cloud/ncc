@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadet Student Dashboard | ITM University NCC Digital Management</title>
+  <meta name="description" content="ITM University NCC Digital Management Portal - Cadet Student Dashboard for Attendance, Camps, Certificates, and Training.">
+  
+  <!-- Google Fonts & CDN Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#082B57',
+              dark: '#071D3A',
+              light: '#1B3E60',
+              50: '#F0F4F8'
+            },
+            itmblue: {
+              DEFAULT: '#1677FF',
+              hover: '#0958D9',
+              light: '#E6F4FF'
+            },
+            nccgold: {
+              DEFAULT: '#F4B400',
+              light: '#FFFBE6',
+              dark: '#D49B00'
+            },
+            nccred: {
+              DEFAULT: '#D92D20',
+              light: '#FEE4E2'
+            },
+            canvasbg: '#F6F8FC',
+            cardbg: '#FFFFFF',
+            darktext: '#14213D',
+            subtext: '#64748B',
+            success: '#12A150',
+            warning: '#F59E0B',
+            danger: '#DC2626'
+          },
+          fontFamily: {
+            sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F6F8FC;
+      color: #14213D;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Subtle Background Animation */
+    #ambient-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .pill-nav-active {
+      background-color: #071D3A;
+      color: #FFFFFF !important;
+      box-shadow: 0 2px 8px rgba(7, 29, 58, 0.25);
+    }
+
+    .pill-nav-inactive {
+      color: #475569;
+      background-color: #F1F5F9;
+    }
+    .pill-nav-inactive:hover {
+      background-color: #E2E8F0;
+      color: #071D3A;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #ambient-bg { display: none; }
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body class="relative min-h-screen custom-scrollbar flex flex-col justify-between">
+
+  <!-- Ambient Animated Background Canvas -->
+  <canvas id="ambient-bg"></canvas>
+
+  <div class="relative z-10 flex-1 flex flex-col">
+    
+    <!-- 1. TOP ANNOUNCEMENT / SYSTEM STATUS BAR -->
+    <div class="bg-[#071D3A] text-white text-xs py-2 px-4 border-b border-navy-light/40 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+          OFFICIAL CADET PORTAL
+        </span>
+        <span class="text-slate-300 hidden sm:inline">ITM University NCC Digital Management Ecosystem</span>
+      </div>
+      <div class="flex items-center space-x-4 text-slate-300 text-[11px]">
+        <span class="flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> 🔒 Student Access</span>
+        <span class="hidden md:inline">|</span>
+        <span class="hidden md:flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i> AY: 2026-27</span>
+      </div>
+    </div>
+
+    <!-- 2. MAIN HEADER NAVBAR -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+        
+        <!-- Left: Logo & University Title -->
+        <a href="index.html" class="flex items-center gap-3 shrink-0">
+          <img src="itm-logo.png" onerror="this.src='https://raw.githubusercontent.com/antigravity-assets/logos/main/itm-logo.png'" alt="ITM Logo" class="h-10 sm:h-12 w-auto object-contain">
+          <img src="ncc logo.png" onerror="this.src='https://raw.githubusercontent.com/antigravity-assets/logos/main/ncc-logo.png'" alt="NCC Logo" class="h-10 sm:h-12 w-auto object-contain border-l border-slate-200 pl-3">
+          <div>
+            <div class="text-sm font-black tracking-tight text-[#071D3A] uppercase leading-none">ITM UNIVERSITY</div>
+            <div class="text-[11px] font-bold text-slate-500 tracking-wide uppercase">Gwalior • NCC Digital Management</div>
+          </div>
+        </a>
+
+        <!-- Center: Desktop Pill Navigation -->
+        <nav class="hidden lg:flex items-center space-x-1 bg-slate-100 p-1 rounded-full border border-slate-200 text-xs font-semibold">
+          <button onclick="switchTab('overview')" id="tab-btn-overview" class="px-3.5 py-1.5 rounded-full transition-all pill-nav-active">Dashboard</button>
+          <button onclick="switchTab('attendance')" id="tab-btn-attendance" class="px-3.5 py-1.5 rounded-full transition-all pill-nav-inactive">Attendance</button>
+          <button onclick="switchTab('training2day')" id="tab-btn-training2day" class="px-3.5 py-1.5 rounded-full transition-all pill-nav-inactive">2-Day Training</button>
+          <button onclick="switchTab('camps')" id="tab-btn-camps" class="px-3.5 py-1.5 rounded-full transition-all pill-nav-inactive">Camps</button>
+          <button onclick="switchTab('certificates')" id="tab-btn-certificates" class="px-3.5 py-1.5 rounded-full transition-all pill-nav-inactive">Certificates</button>
+          <button onclick="switchTab('notices')" id="tab-btn-notices" class="px-3.5 py-1.5 rounded-full transition-all pill-nav-inactive">Notices</button>
+          <button onclick="switchTab('feedback')" id="tab-btn-feedback" class="px-3.5 py-1.5 rounded-full transition-all pill-nav-inactive">Helpdesk</button>
+        </nav>
+
+        <!-- Right: Notifications & Profile -->
+        <div class="flex items-center space-x-3 shrink-0">
+          
+          <!-- Search trigger -->
+          <button onclick="toggleGlobalSearchModal(true)" class="p-2 text-slate-500 hover:text-navy hover:bg-slate-100 rounded-full transition-colors relative" title="Global Search">
+            <i data-lucide="search" class="w-5 h-5"></i>
+          </button>
+
+          <!-- Notification Bell -->
+          <div class="relative">
+            <button onclick="toggleNotificationDropdown()" class="p-2 text-slate-600 hover:text-navy hover:bg-slate-100 rounded-full transition-colors relative">
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span id="notif-badge" class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full ring-2 ring-white"></span>
+            </button>
+            
+            <!-- Notification Dropdown -->
+            <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden animate-fadeIn">
+              <div class="p-4 bg-[#071D3A] text-white flex items-center justify-between">
+                <div class="font-bold text-sm flex items-center gap-2">
+                  <i data-lucide="bell-ring" class="w-4 h-4 text-amber-400"></i> Notifications
+                </div>
+                <button onclick="markAllNotificationsRead()" class="text-[11px] text-amber-300 hover:underline">Mark all as read</button>
+              </div>
+              <div id="notif-list" class="max-h-80 overflow-y-auto divide-y divide-slate-100 text-xs">
+                <!-- Dynamic notification items -->
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Dropdown -->
+          <div class="relative">
+            <button onclick="toggleUserDropdown()" class="flex items-center space-x-2 pl-2 pr-3 py-1 rounded-full border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Cadet Avatar" class="w-8 h-8 rounded-full object-cover border border-amber-400">
+              <div class="text-left hidden sm:block">
+                <div class="text-xs font-bold text-slate-800 leading-tight">Cadet Sairam Krishna</div>
+                <div class="text-[10px] text-slate-500 font-medium">NCC-2026-0012</div>
+              </div>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+            </button>
+
+            <!-- User Menu Dropdown -->
+            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden">
+              <div class="p-4 bg-slate-50 border-b border-slate-100">
+                <p class="text-xs font-bold text-slate-800">Cadet Sairam Krishna</p>
+                <p class="text-[11px] text-slate-500">Roll: BETN1A125216 • B.Tech AI/ML</p>
+                <div class="mt-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">
+                  Unit: 8 MP Artillery Bn
+                </div>
+              </div>
+              <div class="p-2 space-y-1 text-xs">
+                <button onclick="switchTab('overview')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-slate-700">
+                  <i data-lucide="user" class="w-4 h-4 text-navy"></i> My Profile
+                </button>
+                <button onclick="openIDCardModal()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-slate-700">
+                  <i data-lucide="id-card" class="w-4 h-4 text-amber-600"></i> Digital Cadet ID Card
+                </button>
+                <button onclick="switchTab('certificates')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-slate-700">
+                  <i data-lucide="award" class="w-4 h-4 text-emerald-600"></i> My Certificates
+                </button>
+                <div class="border-t border-slate-100 my-1"></div>
+                <a href="login.html" class="w-full text-left px-3 py-2 rounded-lg hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2">
+                  <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Hamburger Menu Button -->
+          <button onclick="toggleMobileDrawer(true)" class="lg:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-lg">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- MOBILE DRAWER -->
+    <div id="mobile-drawer" class="fixed inset-0 bg-slate-900/60 z-50 hidden transition-opacity">
+      <div class="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-2xl p-6 flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between border-b pb-4 mb-4">
+            <div class="font-bold text-navy text-sm">Navigation Menu</div>
+            <button onclick="toggleMobileDrawer(false)" class="p-1 text-slate-400 hover:text-slate-700">
+              <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+          </div>
+          <div class="space-y-2 font-medium text-sm">
+            <button onclick="switchTab('overview'); toggleMobileDrawer(false);" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-3">
+              <i data-lucide="layout-dashboard" class="w-4 h-4 text-navy"></i> Overview
+            </button>
+            <button onclick="switchTab('attendance'); toggleMobileDrawer(false);" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-3">
+              <i data-lucide="calendar-check" class="w-4 h-4 text-navy"></i> Attendance
+            </button>
+            <button onclick="switchTab('training2day'); toggleMobileDrawer(false);" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-3">
+              <i data-lucide="target" class="w-4 h-4 text-navy"></i> 2-Day Training
+            </button>
+            <button onclick="switchTab('camps'); toggleMobileDrawer(false);" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-3">
+              <i data-lucide="tent" class="w-4 h-4 text-navy"></i> Camps
+            </button>
+            <button onclick="switchTab('certificates'); toggleMobileDrawer(false);" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-3">
+              <i data-lucide="file-badge" class="w-4 h-4 text-navy"></i> Certificates
+            </button>
+            <button onclick="switchTab('notices'); toggleMobileDrawer(false);" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-3">
+              <i data-lucide="megaphone" class="w-4 h-4 text-navy"></i> Notices
+            </button>
+            <button onclick="switchTab('feedback'); toggleMobileDrawer(false);" class="w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 flex items-center gap-3">
+              <i data-lucide="message-square" class="w-4 h-4 text-navy"></i> Helpdesk
+            </button>
+          </div>
+        </div>
+        <div class="border-t pt-4">
+          <a href="login.html" class="w-full bg-red-50 text-red-600 py-2.5 rounded-xl text-center font-bold text-xs flex items-center justify-center gap-2">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. MAIN DASHBOARD CONTENT AREA -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full space-y-8 flex-1">
+
+      <!-- ================= SECTION: TOP CADET PROFILE BANNER ================= -->
+      <div class="relative bg-gradient-to-r from-[#071D3A] via-[#082B57] to-[#1677FF] rounded-3xl p-6 sm:p-8 text-white shadow-xl overflow-hidden border border-navy-light/40">
+        <!-- Subtle Pattern Overlay -->
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        
+        <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
+          
+          <!-- Left: Cadet Photo + Core Data -->
+          <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
+            <div class="relative">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Cadet Sairam Krishna" class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl object-cover border-4 border-white/20 shadow-2xl">
+              <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-[#071D3A]">
+                ACTIVE CADET
+              </span>
+            </div>
+            
+            <div class="space-y-1.5">
+              <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Cadet Sairam Krishna</h1>
+                <span class="bg-amber-400/20 text-amber-300 border border-amber-400/40 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                  Rank: Cadet (CDT)
+                </span>
+              </div>
+              <p class="text-blue-100 text-xs sm:text-sm font-medium">
+                Course: B.Tech – AI & Machine Learning | SOECS • 3rd Semester
+              </p>
+              
+              <!-- Quick Info Grid -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-2 pt-3 text-xs text-blue-100/90 border-t border-white/10 mt-3">
+                <div>
+                  <span class="text-slate-300 block text-[10px] uppercase tracking-wider font-semibold">Roll Number</span>
+                  <strong class="text-white font-mono text-xs">BETN1A125216</strong>
+                </div>
+                <div>
+                  <span class="text-slate-300 block text-[10px] uppercase tracking-wider font-semibold">NCC Battalion Unit</span>
+                  <strong class="text-white">8 MP Art Bn</strong>
+                </div>
+                <div>
+                  <span class="text-slate-300 block text-[10px] uppercase tracking-wider font-semibold">Enrollment Year</span>
+                  <strong class="text-white">2026</strong>
+                </div>
+                <div>
+                  <span class="text-slate-300 block text-[10px] uppercase tracking-wider font-semibold">Wing Type</span>
+                  <strong class="text-white">Army Wing (SD)</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Profile Completion & Quick Actions -->
+          <div class="w-full md:w-auto bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/15 flex flex-col items-center md:items-end justify-between space-y-4 shrink-0">
+            <div class="w-full flex items-center justify-between md:justify-end gap-4 text-right">
+              <div>
+                <div class="text-[11px] text-blue-200 font-semibold uppercase tracking-wider">Profile Strength</div>
+                <div class="text-2xl font-black text-amber-300">92%</div>
+              </div>
+              <!-- Progress Ring Mini -->
+              <div class="relative w-12 h-12">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path class="text-white/20" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path class="text-amber-400" stroke-dasharray="92, 100" stroke-width="4" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Profile Action Buttons -->
+            <div class="flex flex-wrap gap-2 w-full justify-center md:justify-end text-xs">
+              <button onclick="openEditProfileModal()" class="bg-white text-navy font-bold px-3 py-1.5 rounded-xl hover:bg-slate-100 transition-all flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Edit Profile
+              </button>
+              <button onclick="openIDCardModal()" class="bg-amber-400 text-navy font-bold px-3 py-1.5 rounded-xl hover:bg-amber-300 transition-all flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="id-card" class="w-3.5 h-3.5"></i> View ID Card
+              </button>
+              <button onclick="openQRModal()" class="bg-white/20 text-white font-semibold px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all flex items-center gap-1.5">
+                <i data-lucide="qr-code" class="w-3.5 h-3.5"></i> Scan QR
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 1: OVERVIEW TAB CONTENT -->
+      <div id="tab-content-overview" class="space-y-8">
+
+        <!-- ================= 8 COLORFUL ACADEMIC OVERVIEW CARDS ================= -->
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-black text-navy uppercase tracking-wider flex items-center gap-2">
+              <i data-lucide="grid" class="w-5 h-5 text-itmblue"></i> NCC Cadet Overview
+            </h2>
+            <span class="text-xs text-subtext">Real-time status updated today</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            
+            <!-- Card 1: NCC Status -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-emerald-500 hover:shadow-md transition-all">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">NCC Status</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="text-xl font-black text-emerald-700">ACTIVE CADET</div>
+              <div class="text-[11px] text-slate-500 mt-1">Reg No: MP/2026/SD/1209</div>
+            </div>
+
+            <!-- Card 2: Unit -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-blue-500 hover:shadow-md transition-all">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Assigned Unit</span>
+                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <i data-lucide="shield" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="text-xl font-black text-navy">Army Unit</div>
+              <div class="text-[11px] text-slate-500 mt-1">8 MP Artillery Battalion</div>
+            </div>
+
+            <!-- Card 3: Rank -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-amber-500 hover:shadow-md transition-all">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Current Rank</span>
+                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                  <i data-lucide="award" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="text-xl font-black text-amber-700">Cadet (CDT)</div>
+              <div class="text-[11px] text-slate-500 mt-1">Senior Division</div>
+            </div>
+
+            <!-- Card 4: Enrollment Year -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-purple-500 hover:shadow-md transition-all">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Enrollment Year</span>
+                <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                  <i data-lucide="calendar" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="text-xl font-black text-purple-700">2026 Batch</div>
+              <div class="text-[11px] text-slate-500 mt-1">3-Year Program Tenure</div>
+            </div>
+
+            <!-- Card 5: Attendance -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-teal-500 hover:shadow-md transition-all">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Overall Attendance</span>
+                <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                  <i data-lucide="percent" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="text-2xl font-black text-teal-700">86%</div>
+              <div class="text-[11px] text-emerald-600 font-semibold mt-1">✓ Above 75% Requirement</div>
+            </div>
+
+            <!-- Card 6: Camps -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-indigo-500 hover:shadow-md transition-all">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Camps Attended</span>
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <i data-lucide="tent" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="text-2xl font-black text-indigo-700">4 Participated</div>
+              <div class="text-[11px] text-slate-500 mt-1">ATC, TSC & NIC Camps</div>
+            </div>
+
+            <!-- Card 7: Certificates -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-sky-500 hover:shadow-md transition-all">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Certificates</span>
+                <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center">
+                  <i data-lucide="file-badge" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="text-2xl font-black text-sky-700">2 Verified</div>
+              <div class="text-[11px] text-slate-500 mt-1">Cert B Eligible</div>
+            </div>
+
+            <!-- Card 8: Achievements -->
+            <div class="glass-card rounded-2xl p-4 border-l-4 border-l-rose-500 hover:shadow-md transition-all">
+              <div class="flex items-center justify-between text-slate-500 mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Achievements</span>
+                <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+                  <i data-lucide="trophy" class="w-4 h-4"></i>
+                </div>
+              </div>
+              <div class="text-2xl font-black text-rose-700">5 Awards</div>
+              <div class="text-[11px] text-slate-500 mt-1">National & State Level</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================= ATTENDANCE SUMMARY & QUICK CAMP BANNER ================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Attendance Quick Summary Widget -->
+          <div class="lg:col-span-2 glass-card rounded-3xl p-6 space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-navy flex items-center gap-2">
+                  <i data-lucide="pie-chart" class="w-5 h-5 text-itmblue"></i> Attendance Breakdown
+                </h3>
+                <p class="text-xs text-subtext">Detailed performance across all training modules</p>
+              </div>
+              <button onclick="switchTab('attendance')" class="text-xs font-bold text-itmblue hover:underline flex items-center gap-1">
+                Full Details <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <!-- Theory -->
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 text-center">
+                <span class="text-[11px] text-slate-500 font-semibold block">Theory Sessions</span>
+                <span class="text-xl font-black text-emerald-600">92%</span>
+                <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div class="bg-emerald-500 h-full rounded-full" style="width: 92%"></div>
+                </div>
+              </div>
+              <!-- Practical -->
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 text-center">
+                <span class="text-[11px] text-slate-500 font-semibold block">Practical Drill</span>
+                <span class="text-xl font-black text-blue-600">81%</span>
+                <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div class="bg-blue-500 h-full rounded-full" style="width: 81%"></div>
+                </div>
+              </div>
+              <!-- Parade -->
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 text-center">
+                <span class="text-[11px] text-slate-500 font-semibold block">Parade Ground</span>
+                <span class="text-xl font-black text-purple-600">88%</span>
+                <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div class="bg-purple-500 h-full rounded-full" style="width: 88%"></div>
+                </div>
+              </div>
+              <!-- Camp Training -->
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 text-center">
+                <span class="text-[11px] text-slate-500 font-semibold block">Camp Training</span>
+                <span class="text-xl font-black text-amber-600">90%</span>
+                <div class="w-full bg-slate-200 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div class="bg-amber-500 h-full rounded-full" style="width: 90%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Attendance Mini Canvas Chart -->
+            <div class="h-44 w-full">
+              <canvas id="miniAttendanceChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Featured Camp Spotlight -->
+          <div class="glass-card rounded-3xl p-6 flex flex-col justify-between space-y-4 border border-amber-200 bg-gradient-to-b from-amber-50/40 to-white">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  REGISTRATION OPEN
+                </span>
+                <span class="text-xs font-bold text-amber-700">Deadline: 18 Sep 2026</span>
+              </div>
+              <h3 class="text-lg font-extrabold text-navy">Annual Training Camp (ATC-102)</h3>
+              <p class="text-xs text-slate-600 mt-1">
+                10-Day mandatory battalion camp focusing on Marksmanship, Obstacle Clearing, Tactical Maneuvers, and Fieldcraft.
+              </p>
+              
+              <div class="mt-4 space-y-2 text-xs text-slate-700">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="map-pin" class="w-4 h-4 text-red-500"></i>
+                  <span>Location: <strong>Gwalior Battalion Ground</strong></span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="calendar" class="w-4 h-4 text-blue-500"></i>
+                  <span>Dates: <strong>20 Sep – 29 Sep 2026</strong></span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i data-lucide="check-square" class="w-4 h-4 text-emerald-500"></i>
+                  <span>Eligibility: <strong>75%+ Attendance Required</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-amber-200 flex items-center gap-3">
+              <button onclick="openCampDetailsModal('ATC-102')" class="flex-1 bg-white border border-slate-300 text-navy font-bold py-2 rounded-xl text-xs hover:bg-slate-50 transition-colors">
+                View Details
+              </button>
+              <button onclick="applyForCamp('Annual Training Camp ATC-102')" class="flex-1 bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2 rounded-xl text-xs transition-colors shadow-sm">
+                Apply Now
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ================= NOTICE BOARD & RECENT ACHIEVEMENTS ================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- Notice Board -->
+          <div class="glass-card rounded-3xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-navy flex items-center gap-2">
+                <i data-lucide="megaphone" class="w-5 h-5 text-amber-500"></i> University / NCC Notice Board
+              </h3>
+              <button onclick="switchTab('notices')" class="text-xs text-itmblue font-bold hover:underline">View All</button>
+            </div>
+
+            <div class="space-y-3 divide-y divide-slate-100 text-xs">
+              
+              <div class="pt-2 first:pt-0 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">IMPORTANT</span>
+                  <span class="text-[11px] text-slate-400">12 Sep 2026</span>
+                </div>
+                <h4 class="font-bold text-slate-800 text-sm">Mandatory Parade Uniform Inspection</h4>
+                <p class="text-slate-600">All cadets must report in full DM uniform with polished boots on Saturday 07:00 AM sharp at ITM Main Ground.</p>
+              </div>
+
+              <div class="pt-3 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700">CAMP SELECTION</span>
+                  <span class="text-[11px] text-slate-400">10 Sep 2026</span>
+                </div>
+                <h4 class="font-bold text-slate-800 text-sm">RDC 2027 Pre-Selection Trials Announced</h4>
+                <p class="text-slate-600">Inter-battalion drill and obstacle trials for Republic Day Camp selection scheduled for next Monday.</p>
+              </div>
+
+              <div class="pt-3 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">GENERAL</span>
+                  <span class="text-[11px] text-slate-400">08 Sep 2026</span>
+                </div>
+                <h4 class="font-bold text-slate-800 text-sm">B-Certificate Examination Form Submission</h4>
+                <p class="text-slate-600">Eligible 2nd year cadets must submit physical copies of form-B to ANO office before Friday.</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Cadet Achievements & Badges -->
+          <div class="glass-card rounded-3xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-navy flex items-center gap-2">
+                <i data-lucide="award" class="w-5 h-5 text-amber-500"></i> My Honours & Badges
+              </h3>
+              <span class="text-xs font-bold text-slate-500">5 Total Earned</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <i data-lucide="medal" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-900">National RDC Parade</h4>
+                  <p class="text-[11px] text-slate-500">Rajpath Contingent • 2026</p>
+                  <span class="inline-block mt-1 text-[10px] font-bold bg-amber-200 text-amber-800 px-2 py-0.5 rounded">National Level</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+                  <i data-lucide="crosshair" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-900">Best Shooter Medal</h4>
+                  <p class="text-[11px] text-slate-500">.22 Deluxe Rifle Competition</p>
+                  <span class="inline-block mt-1 text-[10px] font-bold bg-blue-200 text-blue-800 px-2 py-0.5 rounded">State Level</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                  <i data-lucide="shield-check" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-900">Thal Sainik Camp (TSC)</h4>
+                  <p class="text-[11px] text-slate-500">Obstacle Course Champion</p>
+                  <span class="inline-block mt-1 text-[10px] font-bold bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded">Battalion Gold</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                  <i data-lucide="flag" class="w-5 h-5"></i>
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-900">National Integration Camp</h4>
+                  <p class="text-[11px] text-slate-500">Cultural Lead • Shimla 2025</p>
+                  <span class="inline-block mt-1 text-[10px] font-bold bg-purple-200 text-purple-800 px-2 py-0.5 rounded">National Level</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TAB 2: DETAILED ATTENDANCE TAB CONTENT -->
+      <div id="tab-content-attendance" class="hidden space-y-8">
+        
+        <div class="glass-card rounded-3xl p-6 space-y-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+            <div>
+              <h2 class="text-xl font-extrabold text-navy flex items-center gap-2">
+                <i data-lucide="calendar-check-2" class="w-6 h-6 text-itmblue"></i> Cadet Attendance Detailed Records
+              </h2>
+              <p class="text-xs text-subtext">Official parade, theory, and camp attendance log</p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+              <div class="text-center px-4 py-2 bg-emerald-50 rounded-2xl border border-emerald-200">
+                <span class="text-[10px] font-bold text-emerald-600 uppercase">Overall Attendance</span>
+                <div class="text-2xl font-black text-emerald-700">86%</div>
+              </div>
+              <div class="text-center px-4 py-2 bg-blue-50 rounded-2xl border border-blue-200">
+                <span class="text-[10px] font-bold text-blue-600 uppercase">Total Sessions</span>
+                <div class="text-2xl font-black text-navy">50</div>
+              </div>
+              <div class="text-center px-4 py-2 bg-purple-50 rounded-2xl border border-purple-200">
+                <span class="text-[10px] font-bold text-purple-600 uppercase">Present Days</span>
+                <div class="text-2xl font-black text-purple-700">43</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attendance Chart Canvas -->
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Monthly Attendance Trend (2026)</h3>
+            <div class="h-64 w-full">
+              <canvas id="fullAttendanceChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Attendance Table -->
+          <div class="overflow-x-auto rounded-2xl border border-slate-200">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
+                <tr>
+                  <th class="p-3.5">Date</th>
+                  <th class="p-3.5">Session Name</th>
+                  <th class="p-3.5">Training Type</th>
+                  <th class="p-3.5">Instructor</th>
+                  <th class="p-3.5">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3.5 font-bold">12 Sep 2026</td>
+                  <td class="p-3.5">NCC Theory & Leadership</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold">Theory</span></td>
+                  <td class="p-3.5">CTO Gaurav Singh Shekhawat</td>
+                  <td class="p-3.5"><span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">Present ✓</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3.5 font-bold">10 Sep 2026</td>
+                  <td class="p-3.5">Drill Training & Squad Movements</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold">Practical</span></td>
+                  <td class="p-3.5">Subedar M. S. Thapa</td>
+                  <td class="p-3.5"><span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">Present ✓</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3.5 font-bold">07 Sep 2026</td>
+                  <td class="p-3.5">Rifle Marksmanship .22 Deluxe</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold">Practical</span></td>
+                  <td class="p-3.5">Havildar R. K. Yadav</td>
+                  <td class="p-3.5"><span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">Present ✓</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3.5 font-bold">04 Sep 2026</td>
+                  <td class="p-3.5">Obstacle Clearance Practice</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-[10px] font-bold">Physical</span></td>
+                  <td class="p-3.5">Maj. Rajeshwar Singh</td>
+                  <td class="p-3.5"><span class="px-2 py-1 rounded-full bg-red-100 text-red-700 font-bold text-[10px]">Absent ✗</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="p-3.5 font-bold">01 Sep 2026</td>
+                  <td class="p-3.5">Map Reading & Compass Bearings</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold">Theory</span></td>
+                  <td class="p-3.5">Capt. Arindam Roy</td>
+                  <td class="p-3.5"><span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 font-bold text-[10px]">Present ✓</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 3: 2-DAY CADET TRAINING -->
+      <div id="tab-content-training2day" class="hidden space-y-8">
+        
+        <div class="glass-card rounded-3xl p-6 space-y-6">
+          <div class="flex items-center justify-between border-b pb-4">
+            <div>
+              <h2 class="text-xl font-extrabold text-navy flex items-center gap-2">
+                <i data-lucide="target" class="w-6 h-6 text-amber-500"></i> Special 2-Day Cadet Orientation Training
+              </h2>
+              <p class="text-xs text-subtext">Intensive weekend training module evaluation</p>
+            </div>
+            <div class="text-right">
+              <span class="text-xs font-bold text-slate-500">2-Day Overall Progress</span>
+              <div class="text-2xl font-black text-amber-600">90% Complete</div>
+            </div>
+          </div>
+
+          <!-- Interactive Day Tabs -->
+          <div class="flex items-center space-x-3 border-b border-slate-200">
+            <button onclick="switch2DayTab('day1')" id="btn-2day-1" class="pb-3 border-b-2 border-navy text-navy font-extrabold text-sm flex items-center gap-2">
+              <i data-lucide="book-open" class="w-4 h-4"></i> DAY 1 — THEORY & ORIENTATION
+            </button>
+            <button onclick="switch2DayTab('day2')" id="btn-2day-2" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-navy font-bold text-sm flex items-center gap-2">
+              <i data-lucide="activity" class="w-4 h-4"></i> DAY 2 — PRACTICAL DRILL & FIELD
+            </button>
+          </div>
+
+          <!-- Day 1 Content -->
+          <div id="content-2day-day1" class="space-y-4">
+            <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-200 flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-navy text-sm">Day 1 Focus: NCC History, Values, Command Structure</h3>
+                <p class="text-xs text-slate-600">Instructor: Capt. Arindam Roy • Venue: ITM Auditorium</p>
+              </div>
+              <span class="bg-emerald-100 text-emerald-800 font-extrabold text-xs px-3 py-1 rounded-full">Attendance: Present ✓ (92%)</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
+                <div class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Module 1: NCC Motto</div>
+                <p class="text-slate-500">Unity and Discipline, Core Values, History of Armed Forces in India.</p>
+              </div>
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
+                <div class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Module 2: Leadership Traits</div>
+                <p class="text-slate-500">Duties of a Cadet, Officer-Like Qualities (OLQ), Disaster Management.</p>
+              </div>
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
+                <div class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Module 3: Map Reading Theory</div>
+                <p class="text-slate-500">Grid references, conventional signs, calculating bearing angle.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Day 2 Content -->
+          <div id="content-2day-day2" class="hidden space-y-4">
+            <div class="bg-amber-50/50 p-4 rounded-2xl border border-amber-200 flex items-center justify-between">
+              <div>
+                <h3 class="font-bold text-navy text-sm">Day 2 Focus: Drill Precision, Rifle Assembly & Obstacle Clearing</h3>
+                <p class="text-xs text-slate-600">Instructor: Subedar M. S. Thapa • Venue: ITM Parade Ground</p>
+              </div>
+              <span class="bg-emerald-100 text-emerald-800 font-extrabold text-xs px-3 py-1 rounded-full">Attendance: Present ✓ (88%)</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
+                <div class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Module 1: Squad Drill</div>
+                <p class="text-slate-500">Saluting at the halt, marching turns, ceremonial parade movements.</p>
+              </div>
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
+                <div class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Module 2: Rifle Stripping</div>
+                <p class="text-slate-500">Stripping and assembling .22 rifle, safety precautions, firing positions.</p>
+              </div>
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 space-y-2">
+                <div class="font-bold text-slate-800 flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i> Module 3: 10-Obstacle Course</div>
+                <p class="text-slate-500">Clearance of high wall, zig-zag balance, ramp jump, rope climbing.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TAB 4: CAMPS SCHEDULE & MY APPLICATIONS -->
+      <div id="tab-content-camps" class="hidden space-y-8">
+        
+        <!-- Upcoming Camps -->
+        <div class="glass-card rounded-3xl p-6 space-y-6">
+          <div class="flex items-center justify-between border-b pb-4">
+            <div>
+              <h2 class="text-xl font-extrabold text-navy flex items-center gap-2">
+                <i data-lucide="tent" class="w-6 h-6 text-itmblue"></i> Upcoming NCC Camps
+              </h2>
+              <p class="text-xs text-subtext">Apply for upcoming battalion and national camps</p>
+            </div>
+            <button onclick="switchTab('camps')" class="bg-navy text-white text-xs font-bold px-3 py-1.5 rounded-xl">View Calendar</button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs">
+            
+            <!-- Camp 1 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4 hover:shadow-lg transition-all flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="bg-blue-100 text-blue-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">ATC • Institutional</span>
+                  <span class="text-emerald-600 font-bold text-[10px]">Registration Open</span>
+                </div>
+                <h3 class="font-extrabold text-navy text-base">Annual Training Camp (ATC)</h3>
+                <p class="text-slate-500">10-Day mandatory training camp at Gwalior Artillery Ground.</p>
+                <div class="pt-2 space-y-1 text-slate-700 font-medium">
+                  <div>📍 Location: Gwalior Battalion Grounds</div>
+                  <div>📅 Dates: 20 Sep – 29 Sep 2026</div>
+                  <div>⏳ Deadline: 18 Sep 2026</div>
+                </div>
+              </div>
+              <div class="pt-3 border-t flex items-center gap-2">
+                <button onclick="openCampDetailsModal('ATC-102')" class="flex-1 bg-slate-100 text-navy font-bold py-2 rounded-xl text-xs hover:bg-slate-200">Details</button>
+                <button onclick="applyForCamp('Annual Training Camp ATC')" class="flex-1 bg-[#1677FF] text-white font-bold py-2 rounded-xl text-xs hover:bg-blue-600">Apply</button>
+              </div>
+            </div>
+
+            <!-- Camp 2 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4 hover:shadow-lg transition-all flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">RDC • National</span>
+                  <span class="text-amber-600 font-bold text-[10px]">Selection Phase</span>
+                </div>
+                <h3 class="font-extrabold text-navy text-base">Republic Day Camp (RDC-2027)</h3>
+                <p class="text-slate-500">National level Republic Day Parade selection camp at New Delhi.</p>
+                <div class="pt-2 space-y-1 text-slate-700 font-medium">
+                  <div>📍 Location: DGBNCC Camp, Delhi Cantt</div>
+                  <div>📅 Dates: 01 Jan – 29 Jan 2027</div>
+                  <div>⏳ Deadline: 25 Oct 2026</div>
+                </div>
+              </div>
+              <div class="pt-3 border-t flex items-center gap-2">
+                <button onclick="openCampDetailsModal('RDC-2027')" class="flex-1 bg-slate-100 text-navy font-bold py-2 rounded-xl text-xs hover:bg-slate-200">Details</button>
+                <button onclick="applyForCamp('Republic Day Camp RDC-2027')" class="flex-1 bg-[#1677FF] text-white font-bold py-2 rounded-xl text-xs hover:bg-blue-600">Apply</button>
+              </div>
+            </div>
+
+            <!-- Camp 3 -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-4 hover:shadow-lg transition-all flex flex-col justify-between">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="bg-purple-100 text-purple-800 font-bold px-2.5 py-0.5 rounded-full text-[10px]">TSC • Army</span>
+                  <span class="text-emerald-600 font-bold text-[10px]">Registration Open</span>
+                </div>
+                <h3 class="font-extrabold text-navy text-base">Thal Sainik Camp (TSC)</h3>
+                <p class="text-slate-500">Army wing competitive camp for shooting and obstacle clearing.</p>
+                <div class="pt-2 space-y-1 text-slate-700 font-medium">
+                  <div>📍 Location: OTA Kamptee, Nagpur</div>
+                  <div>📅 Dates: 10 Nov – 21 Nov 2026</div>
+                  <div>⏳ Deadline: 15 Oct 2026</div>
+                </div>
+              </div>
+              <div class="pt-3 border-t flex items-center gap-2">
+                <button onclick="openCampDetailsModal('TSC-2026')" class="flex-1 bg-slate-100 text-navy font-bold py-2 rounded-xl text-xs hover:bg-slate-200">Details</button>
+                <button onclick="applyForCamp('Thal Sainik Camp TSC')" class="flex-1 bg-[#1677FF] text-white font-bold py-2 rounded-xl text-xs hover:bg-blue-600">Apply</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- My Camp Applications Status -->
+        <div class="glass-card rounded-3xl p-6 space-y-4">
+          <h3 class="text-base font-bold text-navy">My Submitted Camp Applications</h3>
+          
+          <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
+            <table class="w-full text-left">
+              <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
+                <tr>
+                  <th class="p-3.5">Camp Name</th>
+                  <th class="p-3.5">Applied Date</th>
+                  <th class="p-3.5">Unit</th>
+                  <th class="p-3.5">Status</th>
+                  <th class="p-3.5">Action</th>
+                </tr>
+              </thead>
+              <tbody id="my-camp-apps-tbody" class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                <tr>
+                  <td class="p-3.5 font-bold">Annual Training Camp (ATC-101)</td>
+                  <td class="p-3.5">15 Aug 2026</td>
+                  <td class="p-3.5">8 MP Artillery Bn</td>
+                  <td class="p-3.5"><span class="px-2 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">SELECTED ✓</span></td>
+                  <td class="p-3.5"><button onclick="viewAppDetails('ATC-101')" class="text-itmblue font-bold hover:underline">View Letter</button></td>
+                </tr>
+                <tr>
+                  <td class="p-3.5 font-bold">National Integration Camp (NIC Shimla)</td>
+                  <td class="p-3.5">10 May 2026</td>
+                  <td class="p-3.5">8 MP Artillery Bn</td>
+                  <td class="p-3.5"><span class="px-2 py-1 rounded-full bg-blue-100 text-blue-800 font-bold text-[10px]">COMPLETED ✓</span></td>
+                  <td class="p-3.5"><button onclick="viewAppDetails('NIC-2026')" class="text-itmblue font-bold hover:underline">View Cert</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 5: CERTIFICATES & UPLOADER -->
+      <div id="tab-content-certificates" class="hidden space-y-8">
+        
+        <!-- Certificates Grid -->
+        <div class="glass-card rounded-3xl p-6 space-y-6">
+          <div class="flex items-center justify-between border-b pb-4">
+            <div>
+              <h2 class="text-xl font-extrabold text-navy flex items-center gap-2">
+                <i data-lucide="file-badge" class="w-6 h-6 text-emerald-600"></i> My NCC Certificates
+              </h2>
+              <p class="text-xs text-subtext">Official verified certificates issued by DGBNCC & University</p>
+            </div>
+            <button onclick="openUploadCertModal()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-xs">
+              <i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload Camp Cert
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs">
+            
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">VERIFIED ✓</span>
+                <span class="text-slate-400 font-mono text-[10px]">Cert #NCC-B-99201</span>
+              </div>
+              <h3 class="font-extrabold text-navy text-base">NCC 'B' Certificate</h3>
+              <p class="text-slate-500">Passed with Grade 'A' • Senior Division Army Wing.</p>
+              <div class="text-[11px] text-slate-600">Issue Date: 14 Feb 2026</div>
+              <div class="pt-3 border-t flex gap-2">
+                <button onclick="viewCertificateDoc('B-Cert')" class="flex-1 bg-slate-100 text-navy font-bold py-1.5 rounded-xl hover:bg-slate-200">View</button>
+                <button onclick="downloadMockCert('B-Cert')" class="flex-1 bg-navy text-white font-bold py-1.5 rounded-xl hover:bg-navy-dark">Download</button>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">VERIFIED ✓</span>
+                <span class="text-slate-400 font-mono text-[10px]">Cert #ATC-2026-44</span>
+              </div>
+              <h3 class="font-extrabold text-navy text-base">Annual Training Camp Certificate</h3>
+              <p class="text-slate-500">10-Day ATC Completion • Gwalior Artillery Bn.</p>
+              <div class="text-[11px] text-slate-600">Issue Date: 30 Jun 2026</div>
+              <div class="pt-3 border-t flex gap-2">
+                <button onclick="viewCertificateDoc('ATC-Cert')" class="flex-1 bg-slate-100 text-navy font-bold py-1.5 rounded-xl hover:bg-slate-200">View</button>
+                <button onclick="downloadMockCert('ATC-Cert')" class="flex-1 bg-navy text-white font-bold py-1.5 rounded-xl hover:bg-navy-dark">Download</button>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 shadow-xs border-dashed border-amber-300 bg-amber-50/20">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">UNDER REVIEW</span>
+                <span class="text-slate-400 font-mono text-[10px]">Pending Officer Verification</span>
+              </div>
+              <h3 class="font-extrabold text-navy text-base">RDC Rajpath Participation</h3>
+              <p class="text-slate-500">Submitted by Cadet on 01 Sep 2026.</p>
+              <div class="text-[11px] text-slate-600">Status: Verified by ANO pending Admin stamp</div>
+              <div class="pt-3 border-t flex gap-2">
+                <button onclick="viewCertificateDoc('RDC-Cert')" class="w-full bg-slate-100 text-navy font-bold py-1.5 rounded-xl hover:bg-slate-200">View Submission</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 6: NOTICES TAB CONTENT -->
+      <div id="tab-content-notices" class="hidden space-y-8">
+        <div class="glass-card rounded-3xl p-6 space-y-4">
+          <h2 class="text-xl font-extrabold text-navy flex items-center gap-2">
+            <i data-lucide="megaphone" class="w-6 h-6 text-amber-500"></i> Battalion & University Announcements
+          </h2>
+          <div class="space-y-4 divide-y divide-slate-200 text-xs">
+            <div class="pt-3 first:pt-0 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-1 rounded bg-red-100 text-red-700 font-bold">IMPORTANT • ALL CADETS</span>
+                <span class="text-slate-400 font-medium">12 Sep 2026, 09:30 AM</span>
+              </div>
+              <h3 class="text-base font-extrabold text-slate-900">Mandatory Parade Uniform & Boot Polish Inspection</h3>
+              <p class="text-slate-600 leading-relaxed">
+                All 1st, 2nd, and 3rd-year NCC cadets of 8 MP Artillery Battalion must report to the ITM University Main Athletic Track on Saturday at 07:00 AM in full uniform. Non-compliance will affect your parade attendance mark.
+              </p>
+              <p class="text-slate-500 font-semibold">— Issued by CTO Gaurav Singh Shekhawat (ANO)</p>
+            </div>
+            
+            <div class="pt-4 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-1 rounded bg-blue-100 text-blue-700 font-bold">CAMP ANNOUNCEMENT</span>
+                <span class="text-slate-400 font-medium">10 Sep 2026, 02:15 PM</span>
+              </div>
+              <h3 class="text-base font-extrabold text-slate-900">Annual Training Camp ATC-102 Shortlist Released</h3>
+              <p class="text-slate-600 leading-relaxed">
+                The provisional shortlist of cadets for ATC-102 has been published. Selected cadets are required to submit their medical fitness certificates to the NCC office by Wednesday.
+              </p>
+              <p class="text-slate-500 font-semibold">— Issued by Battalion Commanding Officer</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 7: HELPDESK & COMPLAINTS TAB CONTENT -->
+      <div id="tab-content-feedback" class="hidden space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Submit Feedback Form -->
+          <div class="glass-card rounded-3xl p-6 space-y-4">
+            <h2 class="text-lg font-extrabold text-navy flex items-center gap-2">
+              <i data-lucide="message-square" class="w-5 h-5 text-itmblue"></i> Submit Cadet Feedback
+            </h2>
+            <form onsubmit="handleFeedbackSubmit(event)" class="space-y-3 text-xs">
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Feedback Category</label>
+                <select id="fb-category" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-itmblue">
+                  <option>Training Quality & Facilities</option>
+                  <option>Camp Logistics & Food</option>
+                  <option>Equipment & Uniform Issuance</option>
+                  <option>General Support</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Rating</label>
+                <div class="flex items-center space-x-2 text-amber-400 text-lg">
+                  <i data-lucide="star" class="w-5 h-5 fill-current cursor-pointer"></i>
+                  <i data-lucide="star" class="w-5 h-5 fill-current cursor-pointer"></i>
+                  <i data-lucide="star" class="w-5 h-5 fill-current cursor-pointer"></i>
+                  <i data-lucide="star" class="w-5 h-5 fill-current cursor-pointer"></i>
+                  <i data-lucide="star" class="w-5 h-5 text-slate-300 cursor-pointer"></i>
+                </div>
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Your Comments</label>
+                <textarea id="fb-comments" rows="4" class="w-full p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-itmblue" placeholder="Share your experience or suggestions..." required></textarea>
+              </div>
+              <button type="submit" class="w-full bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs">
+                Submit Feedback
+              </button>
+            </form>
+          </div>
+
+          <!-- Submit & Track Complaints -->
+          <div class="glass-card rounded-3xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-lg font-extrabold text-navy flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i> My Complaints & Grievances
+              </h2>
+              <button onclick="openNewComplaintModal()" class="bg-red-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl hover:bg-red-700">
+                + New Complaint
+              </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono font-bold text-slate-500">CMP-2026-04</span>
+                  <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">RESOLVED ✓</span>
+                </div>
+                <h4 class="font-bold text-slate-800">Attendance Discrepancy on 14 Aug Parade</h4>
+                <p class="text-slate-600">Corrected by ANO on 16 Aug. Updated from Absent to Present.</p>
+              </div>
+
+              <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="font-mono font-bold text-slate-500">CMP-2026-09</span>
+                  <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">UNDER REVIEW</span>
+                </div>
+                <h4 class="font-bold text-slate-800">Replacement Request for Boots (Size 9)</h4>
+                <p class="text-slate-600">Submitted on 05 Sep. Quartermaster approval pending.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- 4. FOOTER BAR -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 px-4 text-center text-xs text-slate-500">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <strong class="text-navy">ITM UNIVERSITY GWALIOR</strong> • NCC Digital Management Portal v2.4
+        </div>
+        <div class="flex items-center space-x-4 text-slate-400">
+          <a href="#" class="hover:text-navy">Privacy Policy</a>
+          <span>•</span>
+          <a href="#" class="hover:text-navy">Terms of Service</a>
+          <span>•</span>
+          <a href="#" class="hover:text-navy">NCC Helpdesk</a>
+        </div>
+        <div>
+          © 2026 ITM University Gwalior. All Rights Reserved.
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ================= FLOATING AI ASSISTANT CHATBOT ================= -->
+  <div class="fixed bottom-6 right-6 z-50">
+    <button onclick="toggleAIChatbot()" class="w-14 h-14 rounded-full bg-gradient-to-r from-[#071D3A] to-[#1677FF] text-white shadow-2xl flex items-center justify-center hover:scale-105 transition-all group relative border-2 border-amber-400">
+      <i data-lucide="bot" class="w-7 h-7"></i>
+      <span class="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 rounded-full border-2 border-white flex items-center justify-center text-[9px] font-black text-navy">AI</span>
+    </button>
+
+    <!-- Chatbot Window Modal -->
+    <div id="ai-chatbot-window" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[460px] animate-fadeIn">
+      <div class="bg-[#071D3A] p-4 text-white flex items-center justify-between border-b border-navy-light">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-full bg-amber-400 text-navy font-black flex items-center justify-center text-xs">AI</div>
+          <div>
+            <div class="font-bold text-xs">NCC Smart Assistant</div>
+            <div class="text-[10px] text-emerald-400 flex items-center gap-1">● Online • Instant Helper</div>
+          </div>
+        </div>
+        <button onclick="toggleAIChatbot()" class="text-slate-300 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Messages Area -->
+      <div id="ai-chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs bg-slate-50">
+        <div class="bg-white p-3 rounded-2xl border border-slate-200 text-slate-700 shadow-xs">
+          👋 Jai Hind Cadet! I am your <strong>ITM NCC AI Assistant</strong>. How can I help you today with camp eligibility, attendance rules, or certificates?
+        </div>
+      </div>
+
+      <!-- Quick Prompt Chips -->
+      <div class="p-2 bg-white border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap text-[10px] custom-scrollbar">
+        <button onclick="sendQuickPrompt('What is the minimum attendance for ATC camp?')" class="bg-slate-100 hover:bg-slate-200 text-navy font-bold px-2.5 py-1 rounded-full">Camp Eligibility?</button>
+        <button onclick="sendQuickPrompt('How do I download my B-Certificate?')" class="bg-slate-100 hover:bg-slate-200 text-navy font-bold px-2.5 py-1 rounded-full">B-Cert Download?</button>
+        <button onclick="sendQuickPrompt('Contact details for ANO Officer?')" class="bg-slate-100 hover:bg-slate-200 text-navy font-bold px-2.5 py-1 rounded-full">Contact ANO?</button>
+      </div>
+
+      <!-- Chat Input -->
+      <form onsubmit="handleAIChatSubmit(event)" class="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+        <input type="text" id="ai-chat-input" placeholder="Ask about camps, attendance, certificates..." class="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-itmblue">
+        <button type="submit" class="bg-[#1677FF] text-white p-2 rounded-xl hover:bg-blue-600">
+          <i data-lucide="send" class="w-4 h-4"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal 1: Digital ID Card Modal -->
+  <div id="modal-idcard" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative border-2 border-navy">
+      <button onclick="closeModal('modal-idcard')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      
+      <!-- Digital ID Layout -->
+      <div class="bg-gradient-to-b from-[#071D3A] to-[#082B57] text-white p-5 rounded-2xl text-center space-y-3 relative overflow-hidden">
+        <div class="text-[10px] font-black tracking-widest text-amber-300 uppercase">ITM UNIVERSITY GWALIOR • NCC CADET ID</div>
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Cadet" class="w-20 h-20 rounded-2xl mx-auto object-cover border-2 border-amber-400">
+        <div>
+          <h3 class="font-extrabold text-base text-white">Cadet Sairam Krishna</h3>
+          <p class="text-xs text-amber-300 font-mono">ID: NCC-2026-0012</p>
+        </div>
+        <div class="text-[11px] text-slate-200 text-left bg-white/10 p-3 rounded-xl space-y-1">
+          <div>Course: B.Tech AI/ML (SOECS)</div>
+          <div>Roll No: BETN1A125216</div>
+          <div>Unit: 8 MP Artillery Battalion</div>
+          <div>Rank: Cadet (CDT)</div>
+        </div>
+        <div class="pt-2 flex justify-center">
+          <!-- Mock Barcode -->
+          <div class="bg-white p-2 rounded w-48 h-10 flex items-center justify-center font-mono text-[10px] tracking-widest text-black">
+            ||| | |||| | ||| |||| |||| |||
+          </div>
+        </div>
+      </div>
+      
+      <button onclick="closeModal('modal-idcard')" class="w-full bg-navy text-white font-bold py-2 rounded-xl text-xs">Close ID Card</button>
+    </div>
+  </div>
+
+  <!-- Modal 2: QR Scanner Modal -->
+  <div id="modal-qr" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl relative">
+      <button onclick="closeModal('modal-qr')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="font-bold text-navy text-base">Cadet Verification QR Code</h3>
+      <div class="bg-slate-100 p-6 rounded-2xl inline-block border border-slate-200">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=NCC-2026-0012-SAIRAM-KRISHNA" alt="QR Code" class="w-40 h-40 mx-auto">
+      </div>
+      <p class="text-xs text-slate-500">Scan at parade ground or camp entry for automated attendance verification.</p>
+      <button onclick="closeModal('modal-qr')" class="w-full bg-slate-100 text-navy font-bold py-2 rounded-xl text-xs">Done</button>
+    </div>
+  </div>
+
+  <!-- Modal 3: Upload Certificate Modal -->
+  <div id="modal-upload-cert" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+      <button onclick="closeModal('modal-upload-cert')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="font-extrabold text-navy text-lg flex items-center gap-2">
+        <i data-lucide="upload-cloud" class="w-5 h-5 text-itmblue"></i> Submit Camp Certificate
+      </h3>
+      <form onsubmit="handleUploadCertSubmit(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Select Attended Camp</label>
+          <select id="upload-camp-select" class="w-full p-2.5 rounded-xl border border-slate-300">
+            <option>Annual Training Camp (ATC-101)</option>
+            <option>National Integration Camp (NIC Shimla)</option>
+            <option>Republic Day Camp (RDC Rajpath)</option>
+            <option>Other Special Camp</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Upload Certificate File (PDF / JPG)</label>
+          <div class="border-2 border-dashed border-slate-300 hover:border-itmblue p-6 rounded-2xl text-center bg-slate-50 cursor-pointer">
+            <i data-lucide="file-text" class="w-8 h-8 text-slate-400 mx-auto mb-1"></i>
+            <span class="text-slate-600 font-semibold block">Click to select or Drag & Drop file here</span>
+            <span class="text-[10px] text-slate-400">Maximum file size: 5MB</span>
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs">
+          Submit For Officer Verification
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed bottom-6 left-6 z-50 hidden bg-navy text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fadeIn border border-amber-400">
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+    <span id="toast-text">Action completed successfully!</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Ambient Canvas Background
+    (function initAmbientBg() {
+      const canvas = document.getElementById('ambient-bg');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const particles = Array.from({ length: 25 }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: Math.random() * 3 + 1,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.4 + 0.1
+      }));
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height);
+
+        // Soft Gradient
+        const grad = ctx.createRadialGradient(width/2, height/2, 100, width/2, height/2, width);
+        grad.addColorStop(0, 'rgba(8, 43, 87, 0.04)');
+        grad.addColorStop(1, 'rgba(7, 29, 58, 0.08)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw floating particles
+        particles.forEach(p => {
+          p.x += p.dx;
+          p.y += p.dy;
+          if (p.x < 0 || p.x > width) p.dx *= -1;
+          if (p.y < 0 || p.y > height) p.dy *= -1;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(22, 119, 255, ${p.alpha})`;
+          ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+    // Tab Navigation Logic
+    function switchTab(tabId) {
+      const tabs = ['overview', 'attendance', 'training2day', 'camps', 'certificates', 'notices', 'feedback'];
+      tabs.forEach(t => {
+        const content = document.getElementById(`tab-content-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (content) {
+          if (t === tabId) {
+            content.classList.remove('hidden');
+          } else {
+            content.classList.add('hidden');
+          }
+        }
+        if (btn) {
+          if (t === tabId) {
+            btn.className = "px-3.5 py-1.5 rounded-full transition-all pill-nav-active";
+          } else {
+            btn.className = "px-3.5 py-1.5 rounded-full transition-all pill-nav-inactive";
+          }
+        }
+      });
+    }
+
+    // 2-Day Training Subtab logic
+    function switch2DayTab(day) {
+      const day1 = document.getElementById('content-2day-day1');
+      const day2 = document.getElementById('content-2day-day2');
+      const btn1 = document.getElementById('btn-2day-1');
+      const btn2 = document.getElementById('btn-2day-2');
+
+      if (day === 'day1') {
+        day1.classList.remove('hidden');
+        day2.classList.add('hidden');
+        btn1.className = "pb-3 border-b-2 border-navy text-navy font-extrabold text-sm flex items-center gap-2";
+        btn2.className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-navy font-bold text-sm flex items-center gap-2";
+      } else {
+        day2.classList.remove('hidden');
+        day1.classList.add('hidden');
+        btn2.className = "pb-3 border-b-2 border-navy text-navy font-extrabold text-sm flex items-center gap-2";
+        btn1.className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-navy font-bold text-sm flex items-center gap-2";
+      }
+    }
+
+    // Dropdowns & Modals
+    function toggleNotificationDropdown() {
+      const drop = document.getElementById('notification-dropdown');
+      drop.classList.toggle('hidden');
+    }
+
+    function toggleUserDropdown() {
+      const drop = document.getElementById('user-dropdown');
+      drop.classList.toggle('hidden');
+    }
+
+    function toggleMobileDrawer(show) {
+      const drawer = document.getElementById('mobile-drawer');
+      if (show) drawer.classList.remove('hidden');
+      else drawer.classList.add('hidden');
+    }
+
+    function openIDCardModal() {
+      document.getElementById('modal-idcard').classList.remove('hidden');
+    }
+
+    function openQRModal() {
+      document.getElementById('modal-qr').classList.remove('hidden');
+    }
+
+    function openUploadCertModal() {
+      document.getElementById('modal-upload-cert').classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-text').innerText = text;
+      toast.classList.remove('hidden');
+      setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+    }
+
+    // Notifications Population
+    const mockNotifs = [
+      { id: 1, title: 'Camp Application Approved', desc: 'Your application for ATC-102 has been shortlisted.', time: '10m ago' },
+      { id: 2, title: 'Attendance Marked Present', desc: 'Parade attendance updated for 12 Sep.', time: '2h ago' },
+      { id: 3, title: 'New Notice Published', desc: 'Uniform inspection scheduled for Saturday.', time: '1d ago' }
+    ];
+
+    function renderNotifications() {
+      const list = document.getElementById('notif-list');
+      list.innerHTML = mockNotifs.map(n => `
+        <div class="p-3 hover:bg-slate-50 transition-colors">
+          <div class="font-bold text-slate-800">${n.title}</div>
+          <div class="text-slate-500 mt-0.5">${n.desc}</div>
+          <div class="text-[10px] text-slate-400 mt-1">${n.time}</div>
+        </div>
+      `).join('');
+    }
+    renderNotifications();
+
+    function markAllNotificationsRead() {
+      document.getElementById('notif-badge').classList.add('hidden');
+      showToast('All notifications marked as read.');
+    }
+
+    // Camp Application Handler
+    function applyForCamp(campName) {
+      showToast(`Application submitted for ${campName}! Eligibility status: VERIFIED ✓`);
+      const tbody = document.getElementById('my-camp-apps-tbody');
+      if (tbody) {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-slate-50 animate-fadeIn';
+        row.innerHTML = `
+          <td class="p-3.5 font-bold">${campName}</td>
+          <td class="p-3.5">Today</td>
+          <td class="p-3.5">8 MP Artillery Bn</td>
+          <td class="p-3.5"><span class="px-2 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]">UNDER REVIEW</span></td>
+          <td class="p-3.5"><span class="text-slate-400">Pending</span></td>
+        `;
+        tbody.prepend(row);
+      }
+    }
+
+    // Upload Cert Handler
+    function handleUploadCertSubmit(e) {
+      e.preventDefault();
+      closeModal('modal-upload-cert');
+      showToast('Camp Certificate submitted successfully! Sent to Officer desk for verification.');
+    }
+
+    function handleFeedbackSubmit(e) {
+      e.preventDefault();
+      showToast('Thank you! Your feedback has been recorded.');
+      document.getElementById('fb-comments').value = '';
+    }
+
+    // AI Chatbot Logic
+    function toggleAIChatbot() {
+      const win = document.getElementById('ai-chatbot-window');
+      win.classList.toggle('hidden');
+    }
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById('ai-chat-input').value = promptText;
+      handleAIChatSubmit(new Event('submit'));
+    }
+
+    function handleAIChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('ai-chat-input');
+      const val = input.value.trim();
+      if (!val) return;
+
+      const chatBox = document.getElementById('ai-chat-messages');
+      
+      // Add User Message
+      const userMsg = document.createElement('div');
+      userMsg.className = 'bg-[#071D3A] text-white p-3 rounded-2xl ml-8 text-right font-medium shadow-xs';
+      userMsg.innerText = val;
+      chatBox.appendChild(userMsg);
+      input.value = '';
+
+      // Scroll bottom
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Simulate Bot Thinking Response
+      setTimeout(() => {
+        let reply = "I can help with that! ITM University NCC rules state that cadets require 75% parade attendance to qualify for B/C certificate exams and ATC camps.";
+        if (val.toLowerCase().includes('b-cert') || val.toLowerCase().includes('certificate')) {
+          reply = "Your B-Certificate is issued after 2 years of active training and attending at least 1 ATC camp. You can download your verified digital certificate from the Certificates tab!";
+        } else if (val.toLowerCase().includes('ano') || val.toLowerCase().includes('contact')) {
+          reply = "Your ANO Officer is CTO Gaurav Singh Shekhawat (8 MP Artillery Battalion). Contact email: gaurav.singh@itmuniversity.ac.in.";
+        }
+
+        const botMsg = document.createElement('div');
+        botMsg.className = 'bg-white p-3 rounded-2xl border border-slate-200 text-slate-700 shadow-xs mr-8';
+        botMsg.innerText = reply;
+        chatBox.appendChild(botMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 600);
+    }
+
+    // Live Backend / LocalStorage Attendance Sync
+    function syncStudentAttendanceFromBackend() {
+      const stored = localStorage.getItem('ncc_attendance_records');
+      if (!stored) return;
+
+      try {
+        const recordData = JSON.parse(stored);
+        const myRoll = 'BETN1A125216';
+        const myStatus = recordData.records ? recordData.records[myRoll] : null;
+
+        if (myStatus) {
+          const statusText = myStatus === 'P' ? 'PRESENT (✓)' : (myStatus === 'A' ? 'ABSENT (✗)' : 'LATE (🕒)');
+          const statusClass = myStatus === 'P' ? 'bg-emerald-100 text-emerald-800' : (myStatus === 'A' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800');
+
+          // Update Banner in Overview
+          let banner = document.getElementById('today-att-sync-banner');
+          if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'today-att-sync-banner';
+            const overviewSec = document.getElementById('tab-content-overview');
+            if (overviewSec) overviewSec.prepend(banner);
+          }
+          banner.className = `p-4 rounded-2xl text-xs font-bold flex items-center justify-between border shadow-xs mb-6 ${myStatus === 'P' ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-amber-50 border-amber-300 text-amber-900'}`;
+          banner.innerHTML = `
+            <span class="flex items-center gap-2">
+              <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+              <span>Today's Parade Attendance (${recordData.date}): <strong class="uppercase text-sm">${statusText}</strong> — Marked by ${recordData.instructor || 'Officer Desk'}</span>
+            </span>
+            <span class="text-[10px] bg-white px-2.5 py-1 rounded-full border border-slate-200 shadow-2xs font-mono">Synced from Officer Desk</span>
+          `;
+
+          // Prepend to Attendance Table in Attendance Tab
+          const attTbody = document.querySelector('#tab-content-attendance table tbody');
+          if (attTbody && !document.getElementById('synced-att-row')) {
+            const row = document.createElement('tr');
+            row.id = 'synced-att-row';
+            row.className = 'hover:bg-slate-50 font-bold bg-emerald-50/40';
+            row.innerHTML = `
+              <td class="p-3.5 font-bold">${recordData.date}</td>
+              <td class="p-3.5">${recordData.sessionName || 'Practical Drill & Parade Ground'}</td>
+              <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold">Practical</span></td>
+              <td class="p-3.5">${recordData.instructor || 'CTO Gaurav Singh Shekhawat'}</td>
+              <td class="p-3.5"><span class="px-2 py-1 rounded-full ${statusClass} font-bold text-[10px]">${statusText}</span></td>
+            `;
+            attTbody.prepend(row);
+          }
+
+          lucide.createIcons();
+        }
+      } catch (err) {
+        console.error('Error syncing attendance:', err);
+      }
+    }
+
+    // Chart.js Canvas Initialization & Storage Listener
+    window.addEventListener('DOMContentLoaded', () => {
+      syncStudentAttendanceFromBackend();
+      window.addEventListener('storage', syncStudentAttendanceFromBackend);
+
+      // Mini Chart
+      const ctxMini = document.getElementById('miniAttendanceChart');
+      if (ctxMini) {
+        new Chart(ctxMini, {
+          type: 'line',
+          data: {
+            labels: ['June', 'July', 'August', 'September', 'October'],
+            datasets: [{
+              label: 'Attendance %',
+              data: [82, 85, 89, 86, 91],
+              borderColor: '#1677FF',
+              backgroundColor: 'rgba(22, 119, 255, 0.1)',
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { min: 60, max: 100 } }
+          }
+        });
+      }
+
+      // Full Chart
+      const ctxFull = document.getElementById('fullAttendanceChart');
+      if (ctxFull) {
+        new Chart(ctxFull, {
+          type: 'bar',
+          data: {
+            labels: ['June', 'July', 'August', 'September', 'October'],
+            datasets: [
+              { label: 'Present', data: [9, 10, 11, 8, 5], backgroundColor: '#12A150' },
+              { label: 'Absent', data: [1, 1, 0, 1, 0], backgroundColor: '#DC2626' }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

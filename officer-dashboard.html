@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Officer & ANO Dashboard | ITM University NCC Digital Management</title>
+  <meta name="description" content="ITM University NCC Digital Management Portal - Officer & ANO Operational Management Dashboard for Cadets, Attendance, Camps, and Approvals.">
+  
+  <!-- Google Fonts & CDN Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#082B57',
+              dark: '#071D3A',
+              light: '#1B3E60',
+              50: '#F0F4F8'
+            },
+            itmblue: {
+              DEFAULT: '#1677FF',
+              hover: '#0958D9',
+              light: '#E6F4FF'
+            },
+            nccgold: {
+              DEFAULT: '#F4B400',
+              light: '#FFFBE6',
+              dark: '#D49B00'
+            },
+            nccred: {
+              DEFAULT: '#D92D20',
+              light: '#FEE4E2'
+            },
+            canvasbg: '#F6F8FC',
+            cardbg: '#FFFFFF',
+            darktext: '#14213D',
+            subtext: '#64748B',
+            success: '#12A150',
+            warning: '#F59E0B',
+            danger: '#DC2626'
+          },
+          fontFamily: {
+            sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F6F8FC;
+      color: #14213D;
+      overflow-x: hidden;
+    }
+
+    #ambient-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+
+    .sidebar-active {
+      background-color: #071D3A;
+      color: #FFFFFF !important;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(7, 29, 58, 0.2);
+    }
+
+    .sidebar-inactive {
+      color: #475569;
+    }
+    .sidebar-inactive:hover {
+      background-color: #F1F5F9;
+      color: #071D3A;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #ambient-bg { display: none; }
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body class="relative min-h-screen custom-scrollbar flex flex-col justify-between">
+
+  <!-- Ambient Animated Background Canvas -->
+  <canvas id="ambient-bg"></canvas>
+
+  <div class="relative z-10 flex-1 flex flex-col">
+    
+    <!-- 1. TOP ANNOUNCEMENT & ROLE SWITCHER BAR -->
+    <div class="bg-[#071D3A] text-white text-xs py-2 px-4 border-b border-navy-light/40 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+          ANO OFFICER PORTAL
+        </span>
+        <span class="text-slate-300 hidden sm:inline">ITM University NCC Command & Operations Desk</span>
+      </div>
+      <div class="flex items-center space-x-4 text-slate-300 text-[11px]">
+        <span class="flex items-center gap-1 text-emerald-400 font-bold"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 🔒 Officer Access</span>
+        <span class="hidden md:inline">|</span>
+        <span class="hidden md:inline text-slate-300">Unit: 8 MP Artillery Battalion</span>
+      </div>
+    </div>
+
+    <!-- 2. MAIN HEADER NAVBAR -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+        
+        <!-- Left: Logo & Title -->
+        <a href="index.html" class="flex items-center gap-3 shrink-0">
+          <img src="itm-logo.png" onerror="this.src='https://raw.githubusercontent.com/antigravity-assets/logos/main/itm-logo.png'" alt="ITM Logo" class="h-10 sm:h-12 w-auto object-contain">
+          <img src="ncc logo.png" onerror="this.src='https://raw.githubusercontent.com/antigravity-assets/logos/main/ncc-logo.png'" alt="NCC Logo" class="h-10 sm:h-12 w-auto object-contain border-l border-slate-200 pl-3">
+          <div>
+            <div class="text-sm font-black tracking-tight text-[#071D3A] uppercase leading-none">ITM UNIVERSITY</div>
+            <div class="text-[11px] font-bold text-slate-500 tracking-wide uppercase">Officer Operational Management</div>
+          </div>
+        </a>
+
+        <!-- Right: Global Search, Quick Create, Profile -->
+        <div class="flex items-center space-x-3 shrink-0">
+          
+          <!-- Search input -->
+          <div class="relative hidden sm:block">
+            <input type="text" id="officer-global-search" onkeyup="filterCadetsTable()" placeholder="Search cadets, camps, certs..." class="w-48 lg:w-64 pl-9 pr-3 py-1.5 rounded-full border border-slate-300 text-xs focus:ring-2 focus:ring-itmblue focus:outline-none">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2"></i>
+          </div>
+
+          <!-- Quick Action Dropdown -->
+          <div class="relative inline-block text-left">
+            <button onclick="toggleQuickActionMenu()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-xs">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i> Quick Action
+            </button>
+            <div id="quick-action-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden text-xs">
+              <button onclick="switchOfficerSection('attendance')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
+                <i data-lucide="calendar-check" class="w-4 h-4 text-emerald-600"></i> Mark Attendance
+              </button>
+              <button onclick="openCreateCampModal()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
+                <i data-lucide="tent" class="w-4 h-4 text-itmblue"></i> Create New Camp
+              </button>
+              <button onclick="openPublishNoticeModal()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
+                <i data-lucide="megaphone" class="w-4 h-4 text-amber-500"></i> Publish Notice
+              </button>
+              <button onclick="openAddCadetModal()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4 text-purple-600"></i> Register New Cadet
+              </button>
+            </div>
+          </div>
+
+          <!-- Officer Profile Dropdown -->
+          <div class="flex items-center space-x-2 pl-2 border-l border-slate-200">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Officer Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-navy">
+            <div class="text-left hidden md:block">
+              <div class="text-xs font-bold text-slate-800 leading-tight">CTO Gaurav Singh</div>
+              <div class="text-[10px] text-slate-500 font-semibold">Associate NCC Officer (ANO)</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </header>
+
+    <!-- 3. MAIN DASHBOARD BODY (SIDEBAR + CONTENT) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col lg:flex-row gap-6">
+      
+      <!-- SIDEBAR NAVIGATION -->
+      <aside class="w-full lg:w-64 shrink-0 space-y-4">
+        
+        <!-- Officer Info Card -->
+        <div class="bg-gradient-to-b from-[#071D3A] to-[#082B57] text-white p-5 rounded-3xl space-y-3 shadow-lg border border-navy-light">
+          <div class="flex items-center space-x-3">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="CTO Gaurav Singh" class="w-12 h-12 rounded-2xl object-cover border-2 border-amber-400">
+            <div>
+              <h2 class="font-extrabold text-sm text-white">CTO Gaurav Singh</h2>
+              <p class="text-[10px] text-amber-300 font-semibold uppercase">ANO Officer • Army Wing</p>
+            </div>
+          </div>
+          <div class="text-[11px] text-blue-100 bg-white/10 p-2.5 rounded-xl space-y-1">
+            <div>Battalion: <strong>8 MP Artillery Bn</strong></div>
+            <div>Officer ID: <strong>ANO/ITM/2026/04</strong></div>
+          </div>
+        </div>
+
+        <!-- Navigation Menu Links -->
+        <nav class="glass-card rounded-3xl p-3 space-y-1 text-xs">
+          <button onclick="switchOfficerSection('overview')" id="nav-btn-overview" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-active">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Command Overview
+          </button>
+          <button onclick="switchOfficerSection('cadets')" id="nav-btn-cadets" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
+            <i data-lucide="users" class="w-4 h-4"></i> Cadet Management
+          </button>
+          <button onclick="switchOfficerSection('applications')" id="nav-btn-applications" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
+            <i data-lucide="user-check" class="w-4 h-4"></i> Selection & Applications
+            <span class="ml-auto bg-amber-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full">18</span>
+          </button>
+          <button onclick="switchOfficerSection('attendance')" id="nav-btn-attendance" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
+            <i data-lucide="calendar-check-2" class="w-4 h-4"></i> Mark Attendance
+          </button>
+          <button onclick="switchOfficerSection('camps')" id="nav-btn-camps" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
+            <i data-lucide="tent" class="w-4 h-4"></i> Camp Management
+          </button>
+          <button onclick="switchOfficerSection('certificates')" id="nav-btn-certificates" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
+            <i data-lucide="file-badge" class="w-4 h-4"></i> Verify Certificates
+            <span class="ml-auto bg-blue-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full">12</span>
+          </button>
+          <button onclick="switchOfficerSection('notices')" id="nav-btn-notices" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
+            <i data-lucide="megaphone" class="w-4 h-4"></i> Publish Notices
+          </button>
+          <button onclick="switchOfficerSection('complaints')" id="nav-btn-complaints" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
+            <i data-lucide="message-square" class="w-4 h-4"></i> Grievances & Helpdesk
+          </button>
+          <button onclick="switchOfficerSection('reports')" id="nav-btn-reports" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Battalion Reports
+          </button>
+          <div class="border-t border-slate-200 my-2 pt-2"></div>
+          <a href="login.html" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 text-red-600 hover:bg-red-50 font-bold">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+          </a>
+        </nav>
+
+      </aside>
+
+      <!-- MAIN CONTENT SECTION AREA -->
+      <main class="flex-1 space-y-6">
+
+        <!-- ================= SECTION 1: OVERVIEW DASHBOARD ================= -->
+        <div id="section-overview" class="space-y-6">
+          
+          <!-- Welcome Banner -->
+          <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h1 class="text-2xl font-black text-navy tracking-tight">Good Morning, CTO Gaurav Singh</h1>
+              <p class="text-xs text-subtext mt-1">Here is your battalion operational summary for today, 13 September 2026.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="switchOfficerSection('attendance')" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-2">
+                <i data-lucide="check-square" class="w-4 h-4"></i> Take Today's Attendance
+              </button>
+              <button onclick="openCreateCampModal()" class="bg-navy hover:bg-navy-dark text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-2">
+                <i data-lucide="tent" class="w-4 h-4"></i> + Create Camp
+              </button>
+            </div>
+          </div>
+
+          <!-- 8 LARGE OPERATIONAL STATISTICS CARDS -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-navy hover:shadow-md transition-all">
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Total Cadets</div>
+              <div class="text-2xl font-black text-navy mt-1">106</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Across all 3 Years</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-blue-500 hover:shadow-md transition-all">
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Army Unit</div>
+              <div class="text-2xl font-black text-blue-600 mt-1">53</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">8 MP Artillery Bn</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-indigo-500 hover:shadow-md transition-all">
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Naval Unit</div>
+              <div class="text-2xl font-black text-indigo-600 mt-1">80</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">3 MP Naval Unit</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-amber-500 hover:shadow-md transition-all">
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Pending Regs</div>
+              <div class="text-2xl font-black text-amber-600 mt-1">18</div>
+              <div class="text-[10px] text-amber-600 font-bold mt-0.5">Action Required</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-500 hover:shadow-md transition-all">
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Upcoming Camps</div>
+              <div class="text-2xl font-black text-emerald-600 mt-1">6</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">ATC, RDC, TSC</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-teal-500 hover:shadow-md transition-all">
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Today's Attendance</div>
+              <div class="text-2xl font-black text-teal-600 mt-1">91%</div>
+              <div class="text-[10px] text-emerald-600 font-bold mt-0.5">High Participation</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-purple-500 hover:shadow-md transition-all">
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Pending Docs</div>
+              <div class="text-2xl font-black text-purple-600 mt-1">12</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Certificates to review</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-rose-500 hover:shadow-md transition-all">
+              <div class="text-[11px] font-bold text-slate-500 uppercase">Complaints</div>
+              <div class="text-2xl font-black text-rose-600 mt-1">4</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Grievance Desk</div>
+            </div>
+
+          </div>
+
+          <!-- ATTENDANCE WARNING ALERT BANNER -->
+          <div class="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-amber-100 text-amber-800 rounded-xl">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <strong class="text-amber-900 text-sm">Attendance Alert Threshold Notice</strong>
+                <p class="text-amber-800">12 Cadets are currently below the required 75% parade attendance mark for Cert B eligibility.</p>
+              </div>
+            </div>
+            <button onclick="switchOfficerSection('cadets')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-xl shrink-0">
+              View Flagged Cadets
+            </button>
+          </div>
+
+          <!-- CHARTS & QUICK TABLES -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Battalion Attendance Trend Chart -->
+            <div class="glass-card p-5 rounded-3xl space-y-3">
+              <h3 class="text-sm font-extrabold text-navy uppercase tracking-wider">Battalion Attendance Analytics</h3>
+              <div class="h-60 w-full">
+                <canvas id="officerAttendanceChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Recent Cadet Registrations -->
+            <div class="glass-card p-5 rounded-3xl space-y-3 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-sm font-extrabold text-navy uppercase tracking-wider">New Cadet Registrations</h3>
+                  <button onclick="switchOfficerSection('applications')" class="text-xs text-itmblue font-bold hover:underline">Review All</button>
+                </div>
+                <div class="space-y-2 text-xs divide-y divide-slate-100">
+                  <div class="pt-2 first:pt-0 flex items-center justify-between">
+                    <div>
+                      <div class="font-bold text-slate-800">Rahul Sharma</div>
+                      <div class="text-[10px] text-slate-500">B.Tech CSE • 8 MP Art Bn</div>
+                    </div>
+                    <button onclick="approveApplication(1)" class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-200">Approve</button>
+                  </div>
+                  <div class="pt-2 flex items-center justify-between">
+                    <div>
+                      <div class="font-bold text-slate-800">Ananya Verma</div>
+                      <div class="text-[10px] text-slate-500">B.Tech ECE • Girls Battalion</div>
+                    </div>
+                    <button onclick="approveApplication(2)" class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-200">Approve</button>
+                  </div>
+                  <div class="pt-2 flex items-center justify-between">
+                    <div>
+                      <div class="font-bold text-slate-800">Vikram Singh</div>
+                      <div class="text-[10px] text-slate-500">B.Tech Mech • Army Unit</div>
+                    </div>
+                    <button onclick="approveApplication(3)" class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-200">Approve</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ================= SECTION 2: CADET MANAGEMENT ================= -->
+        <div id="section-cadets" class="hidden space-y-6">
+          <div class="glass-card p-6 rounded-3xl space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-navy">Cadet Directory Management</h2>
+                <p class="text-xs text-subtext">View, edit, and filter enrolled cadets in 8 MP Battalion</p>
+              </div>
+              <button onclick="openAddCadetModal()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4"></i> + Add New Cadet
+              </button>
+            </div>
+
+            <!-- Filters Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+              <input type="text" id="cadet-search-input" onkeyup="filterCadetsTable()" placeholder="Search Name, Roll, Rank..." class="p-2.5 rounded-xl border border-slate-300">
+              <select id="cadet-unit-filter" onchange="filterCadetsTable()" class="p-2.5 rounded-xl border border-slate-300">
+                <option value="">All Units</option>
+                <option value="Army Unit">Army Unit</option>
+                <option value="Girls Battalion">Girls Battalion</option>
+                <option value="Naval Unit">Naval Unit</option>
+              </select>
+              <select id="cadet-year-filter" onchange="filterCadetsTable()" class="p-2.5 rounded-xl border border-slate-300">
+                <option value="">All Years</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+              </select>
+              <select id="cadet-status-filter" onchange="filterCadetsTable()" class="p-2.5 rounded-xl border border-slate-300">
+                <option value="">All Statuses</option>
+                <option value="ACTIVE">ACTIVE</option>
+                <option value="WARNING">WARNING (&lt;75%)</option>
+              </select>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
+              <table class="w-full text-left" id="cadets-table">
+                <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
+                  <tr>
+                    <th class="p-3.5">Cadet Name</th>
+                    <th class="p-3.5">Roll / Student ID</th>
+                    <th class="p-3.5">Course</th>
+                    <th class="p-3.5">Unit</th>
+                    <th class="p-3.5">Rank</th>
+                    <th class="p-3.5">Attendance</th>
+                    <th class="p-3.5">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 flex items-center gap-2">
+                      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full object-cover">
+                      <span class="font-bold text-slate-900">Sairam Krishna</span>
+                    </td>
+                    <td class="p-3.5 font-mono">BETN1A125216</td>
+                    <td class="p-3.5">B.Tech AI/ML</td>
+                    <td class="p-3.5">Army Unit</td>
+                    <td class="p-3.5">Cadet (CDT)</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">86%</span></td>
+                    <td class="p-3.5">
+                      <button onclick="editCadetModal('Sairam Krishna')" class="text-itmblue font-bold hover:underline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 flex items-center gap-2">
+                      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full object-cover">
+                      <span class="font-bold text-slate-900">Rahul Sharma</span>
+                    </td>
+                    <td class="p-3.5 font-mono">2024-CSE-042</td>
+                    <td class="p-3.5">B.Tech CSE</td>
+                    <td class="p-3.5">Army Unit</td>
+                    <td class="p-3.5">Senior Under Officer (SUO)</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">82%</span></td>
+                    <td class="p-3.5">
+                      <button onclick="editCadetModal('Rahul Sharma')" class="text-itmblue font-bold hover:underline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 flex items-center gap-2">
+                      <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full object-cover">
+                      <span class="font-bold text-slate-900">Ananya Verma</span>
+                    </td>
+                    <td class="p-3.5 font-mono">2024-ECE-108</td>
+                    <td class="p-3.5">B.Tech ECE</td>
+                    <td class="p-3.5">Girls Battalion</td>
+                    <td class="p-3.5">Junior Under Officer (JUO)</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">94%</span></td>
+                    <td class="p-3.5">
+                      <button onclick="editCadetModal('Ananya Verma')" class="text-itmblue font-bold hover:underline">Edit</button>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50">
+                    <td class="p-3.5 flex items-center gap-2">
+                      <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full object-cover">
+                      <span class="font-bold text-slate-900">Vikram Singh</span>
+                    </td>
+                    <td class="p-3.5 font-mono">2023-ME-019</td>
+                    <td class="p-3.5">B.Tech Mechanical</td>
+                    <td class="p-3.5">Army Unit</td>
+                    <td class="p-3.5">CQMS</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-red-100 text-red-800 font-bold">68%</span></td>
+                    <td class="p-3.5">
+                      <button onclick="editCadetModal('Vikram Singh')" class="text-itmblue font-bold hover:underline">Edit</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= SECTION 3: ATTENDANCE MANAGEMENT SYSTEM (CORE) ================= -->
+        <div id="section-attendance" class="hidden space-y-6">
+          <div class="glass-card p-6 rounded-3xl space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-navy flex items-center gap-2">
+                  <i data-lucide="check-square" class="w-6 h-6 text-emerald-600"></i> Battalion Attendance Marking Desk
+                </h2>
+                <p class="text-xs text-subtext">Record parade, theory, and camp attendance in real-time</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="markAllPresent()" class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3.5 py-2 rounded-xl hover:bg-emerald-200">
+                  MARK ALL PRESENT
+                </button>
+                <button onclick="saveAttendance()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs">
+                  SAVE ATTENDANCE
+                </button>
+              </div>
+            </div>
+
+            <!-- Session Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Select Battalion Unit</label>
+                <select class="w-full p-2 rounded-xl border border-slate-300">
+                  <option>8 MP Artillery Battalion (Army)</option>
+                  <option>1st MP Girls Battalion</option>
+                  <option>4th MP Naval Unit</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Session Date</label>
+                <input type="date" value="2026-09-13" class="w-full p-2 rounded-xl border border-slate-300 font-bold">
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Session Type</label>
+                <select class="w-full p-2 rounded-xl border border-slate-300">
+                  <option>Practical Drill & Parade Ground</option>
+                  <option>NCC Theory & Leadership</option>
+                  <option>Rifle Marksmanship .22</option>
+                  <option>Obstacle Course Clearing</option>
+                </select>
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Instructor / ANO</label>
+                <input type="text" value="CTO Gaurav Singh Shekhawat" class="w-full p-2 rounded-xl border border-slate-300 font-semibold bg-white" readonly>
+              </div>
+            </div>
+
+            <!-- Attendance Cadet List with Choose - Tick Type Option -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
+                  <tr>
+                    <th class="p-3.5">Cadet Name</th>
+                    <th class="p-3.5">Roll Number</th>
+                    <th class="p-3.5">Unit</th>
+                    <th class="p-3.5 text-center">Status Choice (Tick Option)</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-marking-tbody" class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                  <tr class="hover:bg-slate-50/80">
+                    <td class="p-3.5 font-bold text-slate-900">Cadet Sairam Krishna</td>
+                    <td class="p-3.5 font-mono">BETN1A125216</td>
+                    <td class="p-3.5">8 MP Art Bn</td>
+                    <td class="p-3.5 text-center">
+                      <div class="inline-flex items-center gap-2">
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-emerald-100 transition-all">
+                          <input type="radio" name="att-cadet-1" value="P" checked onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                          <span>✓ Present</span>
+                        </label>
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
+                          <input type="radio" name="att-cadet-1" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
+                          <span>✗ Absent</span>
+                        </label>
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
+                          <input type="radio" name="att-cadet-1" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
+                          <span>🕒 Late</span>
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50/80">
+                    <td class="p-3.5 font-bold text-slate-900">Cadet Rahul Sharma</td>
+                    <td class="p-3.5 font-mono">2024-CSE-042</td>
+                    <td class="p-3.5">8 MP Art Bn</td>
+                    <td class="p-3.5 text-center">
+                      <div class="inline-flex items-center gap-2">
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-emerald-100 transition-all">
+                          <input type="radio" name="att-cadet-2" value="P" checked onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                          <span>✓ Present</span>
+                        </label>
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
+                          <input type="radio" name="att-cadet-2" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
+                          <span>✗ Absent</span>
+                        </label>
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
+                          <input type="radio" name="att-cadet-2" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
+                          <span>🕒 Late</span>
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50/80">
+                    <td class="p-3.5 font-bold text-slate-900">Cadet Ananya Verma</td>
+                    <td class="p-3.5 font-mono">2024-ECE-108</td>
+                    <td class="p-3.5">Girls Battalion</td>
+                    <td class="p-3.5 text-center">
+                      <div class="inline-flex items-center gap-2">
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 transition-all">
+                          <input type="radio" name="att-cadet-3" value="P" onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                          <span>✓ Present</span>
+                        </label>
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
+                          <input type="radio" name="att-cadet-3" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
+                          <span>✗ Absent</span>
+                        </label>
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-amber-100 transition-all">
+                          <input type="radio" name="att-cadet-3" value="L" checked onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
+                          <span>🕒 Late</span>
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="hover:bg-slate-50/80">
+                    <td class="p-3.5 font-bold text-slate-900">Cadet Vikram Singh</td>
+                    <td class="p-3.5 font-mono">2023-ME-019</td>
+                    <td class="p-3.5">8 MP Art Bn</td>
+                    <td class="p-3.5 text-center">
+                      <div class="inline-flex items-center gap-2">
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 transition-all">
+                          <input type="radio" name="att-cadet-4" value="P" onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                          <span>✓ Present</span>
+                        </label>
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-300 bg-red-50 text-red-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-red-100 transition-all">
+                          <input type="radio" name="att-cadet-4" value="A" checked onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
+                          <span>✗ Absent</span>
+                        </label>
+                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
+                          <input type="radio" name="att-cadet-4" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
+                          <span>🕒 Late</span>
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>     </div>
+          </div>
+        </div>
+
+        <!-- ================= SECTION 4: CAMP MANAGEMENT & ELIGIBILITY ================= -->
+        <div id="section-camps" class="hidden space-y-6">
+          <div class="glass-card p-6 rounded-3xl space-y-4">
+            <div class="flex items-center justify-between border-b pb-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-navy">Camp Management & Selection Rules</h2>
+                <p class="text-xs text-subtext">Publish new camps, configure eligibility rules, select cadets</p>
+              </div>
+              <button onclick="openCreateCampModal()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> Create New Camp
+              </button>
+            </div>
+
+            <!-- Existing Camps Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[10px]">ATC-102 • Institutional</span>
+                  <span class="text-emerald-600 font-bold">Capacity: 45 / 60</span>
+                </div>
+                <h3 class="font-extrabold text-navy text-base">Annual Training Camp (ATC)</h3>
+                <p class="text-slate-600">Minimum attendance criteria: <strong>75%</strong></p>
+                <div class="flex gap-2">
+                  <button onclick="showToast('Editing Camp Criteria...')" class="flex-1 bg-slate-100 text-navy font-bold py-1.5 rounded-lg">Edit Criteria</button>
+                  <button onclick="showToast('Viewing 45 selected cadets...')" class="flex-1 bg-navy text-white font-bold py-1.5 rounded-lg">View Participants</button>
+                </div>
+              </div>
+
+              <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">RDC-2027 • National</span>
+                  <span class="text-amber-600 font-bold">Capacity: 12 / 15</span>
+                </div>
+                <h3 class="font-extrabold text-navy text-base">Republic Day Camp (RDC Delhi)</h3>
+                <p class="text-slate-600">Minimum attendance criteria: <strong>85% + Drill Trial</strong></p>
+                <div class="flex gap-2">
+                  <button onclick="showToast('Editing Camp Criteria...')" class="flex-1 bg-slate-100 text-navy font-bold py-1.5 rounded-lg">Edit Criteria</button>
+                  <button onclick="showToast('Viewing 12 selected cadets...')" class="flex-1 bg-navy text-white font-bold py-1.5 rounded-lg">View Participants</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= SECTION 5: CERTIFICATE VERIFICATION ================= -->
+        <div id="section-certificates" class="hidden space-y-6">
+          <div class="glass-card p-6 rounded-3xl space-y-4">
+            <h2 class="text-xl font-extrabold text-navy">Pending Certificate Review Desk</h2>
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
+                  <tr>
+                    <th class="p-3.5">Student Name</th>
+                    <th class="p-3.5">Camp / Event</th>
+                    <th class="p-3.5">Submission Date</th>
+                    <th class="p-3.5">Status</th>
+                    <th class="p-3.5">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                  <tr>
+                    <td class="p-3.5 font-bold">Cadet Sairam Krishna</td>
+                    <td class="p-3.5">RDC Rajpath Participation Cert</td>
+                    <td class="p-3.5">01 Sep 2026</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">Under Review</span></td>
+                    <td class="p-3.5 space-x-2">
+                      <button onclick="verifyCertDoc('Sairam Krishna')" class="bg-emerald-600 text-white px-3 py-1 rounded-lg font-bold">Verify ✓</button>
+                      <button onclick="rejectCertDoc('Sairam Krishna')" class="bg-red-600 text-white px-3 py-1 rounded-lg font-bold">Reject</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="p-3.5 font-bold">Cadet Ananya Verma</td>
+                    <td class="p-3.5">NIC Shimla Cultural Lead Cert</td>
+                    <td class="p-3.5">05 Sep 2026</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">Under Review</span></td>
+                    <td class="p-3.5 space-x-2">
+                      <button onclick="verifyCertDoc('Ananya Verma')" class="bg-emerald-600 text-white px-3 py-1 rounded-lg font-bold">Verify ✓</button>
+                      <button onclick="rejectCertDoc('Ananya Verma')" class="bg-red-600 text-white px-3 py-1 rounded-lg font-bold">Reject</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= SECTION 6: PUBLISH NOTICES ================= -->
+        <div id="section-notices" class="hidden space-y-6">
+          <div class="glass-card p-6 rounded-3xl space-y-4">
+            <h2 class="text-xl font-extrabold text-navy">Publish Official Battalion Notice</h2>
+            <form onsubmit="handlePublishNoticeSubmit(event)" class="space-y-4 text-xs">
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Notice Title</label>
+                <input type="text" id="notice-title" placeholder="e.g. Mandatory Uniform Inspection on Saturday" class="w-full p-3 rounded-xl border border-slate-300 font-semibold" required>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label class="font-bold text-slate-700 block mb-1">Target Audience</label>
+                  <select class="w-full p-2.5 rounded-xl border border-slate-300">
+                    <option>All Cadets</option>
+                    <option>8 MP Artillery Battalion</option>
+                    <option>Girls Battalion</option>
+                    <option>Naval Unit</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="font-bold text-slate-700 block mb-1">Priority Level</label>
+                  <select class="w-full p-2.5 rounded-xl border border-slate-300">
+                    <option>IMPORTANT</option>
+                    <option>GENERAL</option>
+                    <option>DEADLINE</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="font-bold text-slate-700 block mb-1">Publish Date</label>
+                  <input type="date" value="2026-09-13" class="w-full p-2 rounded-xl border border-slate-300">
+                </div>
+              </div>
+              <div>
+                <label class="font-bold text-slate-700 block mb-1">Notice Content</label>
+                <textarea rows="4" placeholder="Enter notice text details..." class="w-full p-3 rounded-xl border border-slate-300" required></textarea>
+              </div>
+              <button type="submit" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 px-6 rounded-xl">
+                Publish Notice Immediately
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- ================= SECTION 7: COMPLAINTS DESK ================= -->
+        <div id="section-complaints" class="hidden space-y-6">
+          <div class="glass-card p-6 rounded-3xl space-y-4">
+            <h2 class="text-xl font-extrabold text-navy">Cadet Grievances & Complaints Desk</h2>
+            <div class="space-y-3 text-xs">
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">Attendance Discrepancy on 14 Aug Parade</h4>
+                  <p class="text-slate-500">Submitted by Cadet Sairam Krishna • CMP-2026-04</p>
+                </div>
+                <span class="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">RESOLVED ✓</span>
+              </div>
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">Replacement Request for Boots Size 9</h4>
+                  <p class="text-slate-500">Submitted by Cadet Vikram Singh • CMP-2026-09</p>
+                </div>
+                <button onclick="resolveComplaintModal('CMP-2026-09')" class="bg-[#1677FF] text-white px-3 py-1 rounded-xl font-bold">Respond & Resolve</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= SECTION 8: REPORTS & ANALYTICS ================= -->
+        <div id="section-reports" class="hidden space-y-6">
+          <div class="glass-card p-6 rounded-3xl space-y-4">
+            <div class="flex items-center justify-between border-b pb-4">
+              <h2 class="text-xl font-extrabold text-navy">Battalion Operational Reports</h2>
+              <button onclick="showToast('Exporting Battalion Report PDF...')" class="bg-navy text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2">
+                <i data-lucide="download" class="w-4 h-4"></i> Export PDF Report
+              </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <h4 class="font-bold text-navy">Monthly Attendance Audit</h4>
+                <p class="text-slate-500 mt-1">Average attendance: 88.4% across 8 MP Artillery Bn.</p>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <h4 class="font-bold text-navy">Camp Participation Summary</h4>
+                <p class="text-slate-500 mt-1">45 Cadets selected for ATC-102.</p>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <h4 class="font-bold text-navy">Certificate B Eligibility</h4>
+                <p class="text-slate-500 mt-1">38 Cadets qualified for 2026-27 exam.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+
+    <!-- 4. FOOTER -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 px-4 text-center text-xs text-slate-500">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <strong class="text-navy">ITM UNIVERSITY GWALIOR</strong> • Officer Operations Hub
+        </div>
+        <div>
+          © 2026 ITM University Gwalior. Officer Portal.
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Modal: Add New Cadet / Multiple Persons -->
+  <div id="modal-add-cadet" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative border-2 border-[#1677FF]">
+      <button onclick="closeModal('modal-add-cadet')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="font-extrabold text-navy text-base flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-itmblue"></i> Register Cadet / Add Persons
+        </h3>
+        <button onclick="batchLoopAddCadets()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] px-2.5 py-1 rounded-lg border border-amber-300">
+          ⚡ Loop Add 3 Cadets
+        </button>
+      </div>
+      
+      <form onsubmit="handleSingleAddCadet(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Cadet Full Name</label>
+          <input type="text" id="add-cadet-name" placeholder="e.g. Vikramaditya Roy" class="w-full p-2.5 rounded-xl border border-slate-300" required>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Roll / Student ID</label>
+            <input type="text" id="add-cadet-roll" placeholder="e.g. 2026-CSE-109" class="w-full p-2.5 rounded-xl border border-slate-300" required>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Course / Dept</label>
+            <input type="text" id="add-cadet-course" placeholder="e.g. B.Tech AI/ML" class="w-full p-2.5 rounded-xl border border-slate-300" required>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Battalion Unit</label>
+            <select id="add-cadet-unit" class="w-full p-2.5 rounded-xl border border-slate-300">
+              <option value="8 MP Art Bn">8 MP Artillery Bn</option>
+              <option value="Girls Battalion">Girls Battalion</option>
+              <option value="Naval Unit">Naval Unit</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Cadet Rank</label>
+            <select id="add-cadet-rank" class="w-full p-2.5 rounded-xl border border-slate-300">
+              <option value="Cadet (CDT)">Cadet (CDT)</option>
+              <option value="Corporal (CPL)">Corporal (CPL)</option>
+              <option value="Sergeant (SGT)">Sergeant (SGT)</option>
+              <option value="SUO">Senior Under Officer (SUO)</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-xs">
+          + Add Person To Database & Attendance List
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 left-6 z-50 hidden bg-navy text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fadeIn border border-amber-400">
+    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+    <span id="toast-text">Action completed successfully!</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    lucide.createIcons();
+
+    // Ambient BG Canvas
+    (function initBg() {
+      const canvas = document.getElementById('ambient-bg');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w = canvas.width = window.innerWidth;
+      let h = canvas.height = window.innerHeight;
+      window.addEventListener('resize', () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; });
+
+      const particles = Array.from({ length: 20 }, () => ({
+        x: Math.random() * w, y: Math.random() * h, r: Math.random() * 2 + 1, dx: (Math.random() - 0.5) * 0.3, dy: (Math.random() - 0.5) * 0.3
+      }));
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => {
+          p.x += p.dx; p.y += p.dy;
+          if (p.x < 0 || p.x > w) p.dx *= -1;
+          if (p.y < 0 || p.y > h) p.dy *= -1;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(22, 119, 255, 0.2)'; ctx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // Sidebar Section Switcher
+    function switchOfficerSection(secId) {
+      const secs = ['overview', 'cadets', 'applications', 'attendance', 'camps', 'certificates', 'notices', 'complaints', 'reports'];
+      secs.forEach(s => {
+        const el = document.getElementById(`section-${s}`);
+        const btn = document.getElementById(`nav-btn-${s}`);
+        if (el) el.classList.toggle('hidden', s !== secId);
+        if (btn) {
+          if (s === secId) btn.className = "w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-active";
+          else btn.className = "w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive";
+        }
+      });
+    }
+
+    function toggleQuickActionMenu() {
+      document.getElementById('quick-action-menu').classList.toggle('hidden');
+    }
+
+    function showToast(txt) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-text').innerText = txt;
+      toast.classList.remove('hidden');
+      setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+    }
+
+    function openCreateCampModal() {
+      document.getElementById('modal-create-camp').classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function markAllPresent() {
+      const pRadios = document.querySelectorAll('input[type="radio"][value="P"]');
+      pRadios.forEach(r => {
+        r.checked = true;
+        handleAttTick(r);
+      });
+      showToast('All cadets marked PRESENT (✓) for today session.');
+    }
+
+    function handleAttTick(radio) {
+      const container = radio.closest('.inline-flex');
+      if (!container) return;
+      const labels = container.querySelectorAll('.att-tick-card');
+      labels.forEach(lbl => {
+        const inp = lbl.querySelector('input[type="radio"]');
+        if (inp && inp.checked) {
+          if (inp.value === 'P') {
+            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
+          } else if (inp.value === 'A') {
+            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-300 bg-red-50 text-red-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
+          } else {
+            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
+          }
+        } else {
+          lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-slate-100 transition-all";
+        }
+      });
+    }
+
+    function verifyCertDoc(name) {
+      showToast(`Certificate verified for ${name}! Added to official credentials.`);
+    }
+
+    function handleCreateCampSubmit(e) {
+      e.preventDefault();
+      closeModal('modal-create-camp');
+      showToast('New camp created & published successfully!');
+    }
+
+    function openAddCadetModal() {
+      document.getElementById('modal-add-cadet').classList.remove('hidden');
+    }
+
+    // Default Cadet Data Store
+    let initialCadetsList = [
+      { roll: 'BETN1A125216', name: 'Cadet Sairam Krishna', course: 'B.Tech AI/ML', unit: '8 MP Art Bn', rank: 'Cadet (CDT)', attendance: 86 },
+      { roll: '2024-CSE-042', name: 'Cadet Rahul Sharma', course: 'B.Tech CSE', unit: '8 MP Art Bn', rank: 'SUO', attendance: 82 },
+      { roll: '2024-ECE-108', name: 'Cadet Ananya Verma', course: 'B.Tech ECE', unit: 'Girls Battalion', rank: 'JUO', attendance: 94 },
+      { roll: '2023-ME-019', name: 'Cadet Vikram Singh', course: 'B.Tech Mech', unit: '8 MP Art Bn', rank: 'CQMS', attendance: 68 }
+    ];
+
+    function getCadetsStore() {
+      const stored = localStorage.getItem('ncc_cadets_list');
+      if (!stored) {
+        localStorage.setItem('ncc_cadets_list', JSON.stringify(initialCadetsList));
+        return initialCadetsList;
+      }
+      return JSON.parse(stored);
+    }
+
+    function renderDynamicCadetLists() {
+      const cadets = getCadetsStore();
+      
+      // Update Attendance Table
+      const attBody = document.getElementById('attendance-marking-tbody');
+      if (attBody) {
+        attBody.innerHTML = cadets.map((c, idx) => `
+          <tr class="hover:bg-slate-50/80">
+            <td class="p-3.5 font-bold text-slate-900">${c.name}</td>
+            <td class="p-3.5 font-mono">${c.roll}</td>
+            <td class="p-3.5">${c.unit}</td>
+            <td class="p-3.5 text-center">
+              <div class="inline-flex items-center gap-2">
+                <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-emerald-100 transition-all">
+                  <input type="radio" name="att-cadet-${idx}" value="P" checked onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                  <span>✓ Present</span>
+                </label>
+                <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
+                  <input type="radio" name="att-cadet-${idx}" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
+                  <span>✗ Absent</span>
+                </label>
+                <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
+                  <input type="radio" name="att-cadet-${idx}" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
+                  <span>🕒 Late</span>
+                </label>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Update Cadet Directory Table
+      const cadBody = document.querySelector('#cadets-table tbody');
+      if (cadBody) {
+        cadBody.innerHTML = cadets.map(c => `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3.5 flex items-center gap-2">
+              <div class="w-7 h-7 rounded-full bg-navy text-white font-black text-xs flex items-center justify-center">${c.name.charAt(0)}</div>
+              <span class="font-bold text-slate-900">${c.name}</span>
+            </td>
+            <td class="p-3.5 font-mono">${c.roll}</td>
+            <td class="p-3.5">${c.course}</td>
+            <td class="p-3.5">${c.unit}</td>
+            <td class="p-3.5">${c.rank}</td>
+            <td class="p-3.5"><span class="px-2 py-0.5 rounded ${c.attendance >= 75 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'} font-bold">${c.attendance}%</span></td>
+            <td class="p-3.5"><button onclick="editCadetModal('${c.name}')" class="text-itmblue font-bold hover:underline">Edit</button></td>
+          </tr>
+        `).join('');
+      }
+
+      // Update Total Cadet Counter
+      const totalCounter = document.querySelector('#section-overview .text-2xl.font-black.text-navy');
+      if (totalCounter) {
+        totalCounter.innerText = cadets.length;
+      }
+    }
+
+    function handleSingleAddCadet(e) {
+      e.preventDefault();
+      const name = document.getElementById('add-cadet-name').value.trim();
+      const roll = document.getElementById('add-cadet-roll').value.trim();
+      const course = document.getElementById('add-cadet-course').value.trim();
+      const unit = document.getElementById('add-cadet-unit').value;
+      const rank = document.getElementById('add-cadet-rank').value;
+
+      const cadets = getCadetsStore();
+      cadets.unshift({ name, roll, course, unit, rank, attendance: 90 });
+      localStorage.setItem('ncc_cadets_list', JSON.stringify(cadets));
+
+      closeModal('modal-add-cadet');
+      renderDynamicCadetLists();
+      showToast(`Added ${name} (${roll}) to Database & Attendance list!`);
+    }
+
+    function batchLoopAddCadets() {
+      const sampleNames = ['Rohan Das', 'Priya Roy', 'Arjun Kapoor'];
+      const cadets = getCadetsStore();
+      
+      // Loop creation
+      for (let i = 0; i < sampleNames.length; i++) {
+        const randId = Math.floor(1000 + Math.random() * 9000);
+        cadets.unshift({
+          name: sampleNames[i],
+          roll: `2026-CAD-${randId}`,
+          course: 'B.Tech IT',
+          unit: '8 MP Art Bn',
+          rank: 'Cadet (CDT)',
+          attendance: 88
+        });
+      }
+
+      localStorage.setItem('ncc_cadets_list', JSON.stringify(cadets));
+      closeModal('modal-add-cadet');
+      renderDynamicCadetLists();
+      showToast('Created 3 New Persons in Loop! All added to backend store.');
+    }
+
+    function saveAttendance() {
+      const cadets = getCadetsStore();
+      const records = {};
+      let markedCount = 0;
+
+      cadets.forEach((c, idx) => {
+        const checked = document.querySelector(`input[name="att-cadet-${idx}"]:checked`);
+        if (checked) {
+          records[c.roll] = checked.value;
+          markedCount++;
+        } else {
+          records[c.roll] = 'P';
+        }
+      });
+
+      const sessionRecord = {
+        date: new Date().toISOString().split('T')[0],
+        sessionName: 'Practical Drill & Parade Ground',
+        type: 'Practical',
+        instructor: 'CTO Gaurav Singh Shekhawat',
+        records: records,
+        timestamp: new Date().toLocaleTimeString()
+      };
+
+      // Save to shared localStorage
+      localStorage.setItem('ncc_attendance_records', JSON.stringify(sessionRecord));
+      showToast(`Saved attendance for ${markedCount} cadets! Synced to Student login pages ✓`);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderDynamicCadetLists();
+      const ctx = document.getElementById('officerAttendanceChart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+            datasets: [{
+              label: 'Attendance %',
+              data: [89, 92, 85, 91, 94],
+              borderColor: '#12A150',
+              backgroundColor: 'rgba(18, 161, 80, 0.1)',
+              fill: true
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

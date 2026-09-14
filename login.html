@@ -608,15 +608,14 @@
       btn.disabled = true;
 
       setTimeout(() => {
-        const toast = document.getElementById('toast-container');
-        const toastText = document.getElementById('toast-text');
-        toastText.innerText = `Login Successful! Entering ${currentRole.toUpperCase()} Portal...`;
-        toast.classList.remove('hidden');
-
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1200);
-      }, 1000);
+        if (currentRole === 'officer') {
+          window.location.href = 'officer-dashboard.html';
+        } else if (currentRole === 'admin') {
+          window.location.href = 'admin-dashboard.html';
+        } else {
+          window.location.href = 'student-dashboard.html';
+        }
+      }, 600);
     }
 
     function handleRegisterSubmit(e) {
