@@ -174,4 +174,5 @@ Expected output:
 ```
 #   n c c 1  
  #   n c c 1  
+ #   n c c 2  
  
