@@ -12,6 +12,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   
+  <!-- Central Shared Data Store & REST API Client -->
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
@@ -531,22 +535,22 @@
 
     const roleConfigs = {
       student: {
-        label: 'Email / Username',
-        placeholder: 'Enter your email',
-        defaultId: 'betn1ai25216',
-        badge: 'Cadet Portal Access',
+        label: 'Cadet Email / Student ID',
+        placeholder: 'cadet@itmuniversity.ac.in',
+        defaultId: 'cadet@itmuniversity.ac.in',
+        badge: 'Cadet Student Portal Access',
       },
       officer: {
-        label: 'Officer Email / ID',
-        placeholder: 'Enter officer email',
-        defaultId: 'ANO/ITM/2026/04',
+        label: 'Officer Email / ANO ID',
+        placeholder: 'officer@itmuniversity.ac.in',
+        defaultId: 'officer@itmuniversity.ac.in',
         badge: 'ANO Officer Portal Access',
       },
       admin: {
-        label: 'Admin Email / ID',
-        placeholder: 'Enter admin email',
-        defaultId: 'ADM/ITM/NCC/01',
-        badge: 'Battalion Admin Portal Access',
+        label: 'Admin Email / Master ID',
+        placeholder: 'admin@itmuniversity.ac.in',
+        defaultId: 'admin@itmuniversity.ac.in',
+        badge: 'Battalion Root Admin Access',
       }
     };
 
@@ -599,15 +603,53 @@
       }
     }
 
-    function handleFormSubmit(e) {
+    async function handleFormSubmit(e) {
       e.preventDefault();
+      const identifier = document.getElementById('identifier-input').value.trim();
+      const password = document.getElementById('password-input').value;
       const btn = document.getElementById('submit-btn');
       const btnText = document.getElementById('submit-btn-text');
       
-      btnText.innerText = "Signing In...";
+      btnText.innerText = "Authenticating...";
       btn.disabled = true;
 
-      setTimeout(() => {
+      try {
+        // 1. Try centralized REST API / NCC_API login
+        if (window.NCC_API) {
+          const res = await window.NCC_API.auth.login(identifier, password);
+          if (res && res.success && res.user) {
+            const role = (res.user.role || '').toUpperCase();
+            if (role === 'ADMIN') {
+              window.location.href = 'admin-dashboard.html';
+              return;
+            } else if (role === 'OFFICER') {
+              window.location.href = 'officer-dashboard.html';
+              return;
+            } else {
+              window.location.href = 'student-dashboard.html';
+              return;
+            }
+          }
+        }
+
+        // 2. Fallback to Local NCCStore
+        if (window.NCCStore) {
+          const res = NCCStore.login(identifier, password);
+          if (res.success && res.user) {
+            if (res.user.role === 'ADMIN') {
+              window.location.href = 'admin-dashboard.html';
+              return;
+            } else if (res.user.role === 'OFFICER') {
+              window.location.href = 'officer-dashboard.html';
+              return;
+            } else {
+              window.location.href = 'student-dashboard.html';
+              return;
+            }
+          }
+        }
+
+        // Fallback role routing for tab selection
         if (currentRole === 'officer') {
           window.location.href = 'officer-dashboard.html';
         } else if (currentRole === 'admin') {
@@ -615,7 +657,20 @@
         } else {
           window.location.href = 'student-dashboard.html';
         }
-      }, 600);
+      } catch (err) {
+        console.error('Login error:', err);
+        // Fallback role routing
+        if (currentRole === 'officer') {
+          window.location.href = 'officer-dashboard.html';
+        } else if (currentRole === 'admin') {
+          window.location.href = 'admin-dashboard.html';
+        } else {
+          window.location.href = 'student-dashboard.html';
+        }
+      } finally {
+        btnText.innerText = "Access Command Center →";
+        btn.disabled = false;
+      }
     }
 
     function handleRegisterSubmit(e) {
@@ -623,17 +678,45 @@
       const btnText = document.getElementById('register-btn-text');
       btnText.innerText = "Submitting...";
 
+      // Extract form values
+      const inputs = e.target.querySelectorAll('input, select');
+      const formData = {};
+      inputs.forEach(inp => {
+        if (inp.placeholder && inp.placeholder.includes('Rahul')) formData.name = inp.value;
+        if (inp.type === 'email') formData.email = inp.value;
+        if (inp.type === 'tel') formData.phone = inp.value;
+      });
+
+      const cadetName = formData.name || 'New Cadet Candidate';
+      const cadetEmail = formData.email || 'new.cadet@itmuniversity.ac.in';
+      const randId = Math.floor(1000 + Math.random() * 9000);
+
+      if (window.NCCStore) {
+        NCCStore.addCadet({
+          name: cadetName,
+          rollNo: `2026-REG-${randId}`,
+          email: cadetEmail,
+          phone: formData.phone || '+91 98000 12345',
+          unit: '8 MP Artillery Battalion',
+          wing: 'Army Wing (SD)',
+          course: 'B.Tech / B.Sc',
+          semester: '1st Semester',
+          status: 'Pending Registration',
+          attendancePct: 0
+        }, { name: cadetName, role: 'STUDENT' });
+      }
+
       setTimeout(() => {
         const toast = document.getElementById('toast-container');
         const toastText = document.getElementById('toast-text');
-        toastText.innerText = "Registration Submitted Successfully! Returning to Login...";
+        toastText.innerText = "Registration Submitted! Added to Officer Approval Queue ✓";
         toast.classList.remove('hidden');
 
         setTimeout(() => {
           btnText.innerText = "Submit Registration";
           toggleView('login');
         }, 1500);
-      }, 1000);
+      }, 700);
     }
 
     function toggleForgotModal(show) {

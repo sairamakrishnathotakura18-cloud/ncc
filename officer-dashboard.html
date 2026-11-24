@@ -20,6 +20,10 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Central Shared Data Store & REST API Client -->
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -126,70 +130,60 @@
 
   <div class="relative z-10 flex-1 flex flex-col">
     
-    <!-- 1. TOP ANNOUNCEMENT & ROLE SWITCHER BAR -->
-    <div class="bg-[#071D3A] text-white text-xs py-2 px-4 border-b border-navy-light/40 flex flex-wrap items-center justify-between gap-2">
-      <div class="flex items-center space-x-3">
-        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
-          ANO OFFICER PORTAL
-        </span>
-        <span class="text-slate-300 hidden sm:inline">ITM University NCC Command & Operations Desk</span>
-      </div>
-      <div class="flex items-center space-x-4 text-slate-300 text-[11px]">
-        <span class="flex items-center gap-1 text-emerald-400 font-bold"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i> 🔒 Officer Access</span>
-        <span class="hidden md:inline">|</span>
-        <span class="hidden md:inline text-slate-300">Unit: 8 MP Artillery Battalion</span>
-      </div>
-    </div>
-
-    <!-- 2. MAIN HEADER NAVBAR -->
+    <!-- 1. MAIN HEADER NAVBAR (TOP FLUSH - Top bar removed per specification) -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
         
-        <!-- Left: Logo & Title -->
-        <a href="index.html" class="flex items-center gap-3 shrink-0">
-          <img src="itm-logo.png" onerror="this.src='https://raw.githubusercontent.com/antigravity-assets/logos/main/itm-logo.png'" alt="ITM Logo" class="h-10 sm:h-12 w-auto object-contain">
-          <img src="ncc logo.png" onerror="this.src='https://raw.githubusercontent.com/antigravity-assets/logos/main/ncc-logo.png'" alt="NCC Logo" class="h-10 sm:h-12 w-auto object-contain border-l border-slate-200 pl-3">
-          <div>
-            <div class="text-sm font-black tracking-tight text-[#071D3A] uppercase leading-none">ITM UNIVERSITY</div>
-            <div class="text-[11px] font-bold text-slate-500 tracking-wide uppercase">Officer Operational Management</div>
-          </div>
-        </a>
+        <!-- Left: Hamburger (Mobile) + Logo & Title -->
+        <div class="flex items-center gap-3">
+          <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <a href="index.html" class="flex items-center gap-3 shrink-0">
+            <img src="itm-logo.png" onerror="this.src='https://raw.githubusercontent.com/antigravity-assets/logos/main/itm-logo.png'" alt="ITM Logo" class="h-10 sm:h-12 w-auto object-contain">
+            <img src="ncc logo.png" onerror="this.src='https://raw.githubusercontent.com/antigravity-assets/logos/main/ncc-logo.png'" alt="NCC Logo" class="h-10 sm:h-12 w-auto object-contain border-l border-slate-200 pl-3">
+            <div>
+              <div class="text-sm font-black tracking-tight text-[#071D3A] uppercase leading-none">ITM UNIVERSITY</div>
+              <div class="text-[11px] font-bold text-slate-500 tracking-wide uppercase">Officer Operational Management</div>
+            </div>
+          </a>
+        </div>
 
-        <!-- Right: Global Search, Quick Create, Profile -->
+        <!-- Right: Global Search, Quick Action, Officer Profile -->
         <div class="flex items-center space-x-3 shrink-0">
           
           <!-- Search input -->
           <div class="relative hidden sm:block">
-            <input type="text" id="officer-global-search" onkeyup="filterCadetsTable()" placeholder="Search cadets, camps, certs..." class="w-48 lg:w-64 pl-9 pr-3 py-1.5 rounded-full border border-slate-300 text-xs focus:ring-2 focus:ring-itmblue focus:outline-none">
+            <input type="text" id="officer-global-search" onkeyup="handleGlobalOfficerSearch(this.value)" placeholder="Search cadets, camps, certs..." class="w-48 lg:w-64 pl-9 pr-3 py-1.5 rounded-full border border-slate-300 text-xs focus:ring-2 focus:ring-itmblue focus:outline-none">
             <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2"></i>
           </div>
 
           <!-- Quick Action Dropdown -->
           <div class="relative inline-block text-left">
-            <button onclick="toggleQuickActionMenu()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-xs">
+            <button onclick="toggleQuickActionMenu()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-xs">
               <i data-lucide="plus-circle" class="w-4 h-4"></i> Quick Action
             </button>
-            <div id="quick-action-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden text-xs">
-              <button onclick="switchOfficerSection('attendance')" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
+            <div id="quick-action-menu" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 overflow-hidden text-xs py-1">
+              <button onclick="switchOfficerSection('attendance'); toggleQuickActionMenu()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
                 <i data-lucide="calendar-check" class="w-4 h-4 text-emerald-600"></i> Mark Attendance
               </button>
-              <button onclick="openCreateCampModal()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
+              <button onclick="openCreateCampModal(); toggleQuickActionMenu()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
                 <i data-lucide="tent" class="w-4 h-4 text-itmblue"></i> Create New Camp
               </button>
-              <button onclick="openPublishNoticeModal()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
+              <button onclick="openPublishNoticeModal(); toggleQuickActionMenu()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
                 <i data-lucide="megaphone" class="w-4 h-4 text-amber-500"></i> Publish Notice
               </button>
-              <button onclick="openAddCadetModal()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
+              <button onclick="openAddCadetModal(); toggleQuickActionMenu()" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 font-bold text-navy flex items-center gap-2">
                 <i data-lucide="user-plus" class="w-4 h-4 text-purple-600"></i> Register New Cadet
               </button>
             </div>
           </div>
 
-          <!-- Officer Profile Dropdown -->
+          <!-- Officer Profile Header Chip -->
           <div class="flex items-center space-x-2 pl-2 border-l border-slate-200">
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Officer Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-navy">
+            <img id="officer-header-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80" alt="Officer Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-navy">
             <div class="text-left hidden md:block">
-              <div class="text-xs font-bold text-slate-800 leading-tight">CTO Gaurav Singh</div>
+              <div id="officer-header-name" class="text-xs font-bold text-slate-800 leading-tight">CTO Gaurav Singh</div>
               <div class="text-[10px] text-slate-500 font-semibold">Associate NCC Officer (ANO)</div>
             </div>
           </div>
@@ -199,28 +193,35 @@
       </div>
     </header>
 
-    <!-- 3. MAIN DASHBOARD BODY (SIDEBAR + CONTENT) -->
+    <!-- 2. MAIN DASHBOARD BODY (SIDEBAR + CONTENT) -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex flex-col lg:flex-row gap-6">
       
       <!-- SIDEBAR NAVIGATION -->
-      <aside class="w-full lg:w-64 shrink-0 space-y-4">
+      <aside id="officer-sidebar" class="w-full lg:w-64 shrink-0 space-y-4">
         
-        <!-- Officer Info Card -->
-        <div class="bg-gradient-to-b from-[#071D3A] to-[#082B57] text-white p-5 rounded-3xl space-y-3 shadow-lg border border-navy-light">
+        <!-- Redesigned Officer Info Card (Lighter card per user specification) -->
+        <div class="bg-white p-5 rounded-3xl space-y-3 shadow-xs border border-slate-200">
           <div class="flex items-center space-x-3">
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="CTO Gaurav Singh" class="w-12 h-12 rounded-2xl object-cover border-2 border-amber-400">
+            <img id="sidebar-officer-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80" alt="CTO Gaurav Singh" class="w-12 h-12 rounded-2xl object-cover border-2 border-slate-200 shadow-xs">
             <div>
-              <h2 class="font-extrabold text-sm text-white">CTO Gaurav Singh</h2>
-              <p class="text-[10px] text-amber-300 font-semibold uppercase">ANO Officer • Army Wing</p>
+              <h2 id="sidebar-officer-name" class="font-extrabold text-sm text-navy">CTO Gaurav Singh</h2>
+              <p class="text-[11px] text-slate-500 font-semibold">ANO Officer • Army Wing</p>
+              <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mt-1 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active
+              </span>
             </div>
           </div>
-          <div class="text-[11px] text-blue-100 bg-white/10 p-2.5 rounded-xl space-y-1">
-            <div>Battalion: <strong>8 MP Artillery Bn</strong></div>
-            <div>Officer ID: <strong>ANO/ITM/2026/04</strong></div>
+          <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+            <button onclick="switchOfficerSection('overview')" class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold text-xs py-1.5 rounded-xl border border-slate-200 flex items-center justify-center gap-1.5 transition-colors">
+              <i data-lucide="user" class="w-3.5 h-3.5"></i> Profile
+            </button>
+            <a href="login.html" onclick="if(window.NCCStore) NCCStore.logout()" class="flex-1 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs py-1.5 rounded-xl border border-red-200 flex items-center justify-center gap-1.5 transition-colors">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Logout
+            </a>
           </div>
         </div>
 
-        <!-- Navigation Menu Links -->
+        <!-- Navigation Menu Links (8 Live Sections) -->
         <nav class="glass-card rounded-3xl p-3 space-y-1 text-xs">
           <button onclick="switchOfficerSection('overview')" id="nav-btn-overview" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-active">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Command Overview
@@ -230,7 +231,7 @@
           </button>
           <button onclick="switchOfficerSection('applications')" id="nav-btn-applications" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
             <i data-lucide="user-check" class="w-4 h-4"></i> Selection & Applications
-            <span class="ml-auto bg-amber-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full">18</span>
+            <span id="nav-badge-applications" class="ml-auto bg-amber-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full">18</span>
           </button>
           <button onclick="switchOfficerSection('attendance')" id="nav-btn-attendance" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
             <i data-lucide="calendar-check-2" class="w-4 h-4"></i> Mark Attendance
@@ -240,19 +241,20 @@
           </button>
           <button onclick="switchOfficerSection('certificates')" id="nav-btn-certificates" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
             <i data-lucide="file-badge" class="w-4 h-4"></i> Verify Certificates
-            <span class="ml-auto bg-blue-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full">12</span>
+            <span id="nav-badge-certificates" class="ml-auto bg-blue-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full">12</span>
           </button>
           <button onclick="switchOfficerSection('notices')" id="nav-btn-notices" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
             <i data-lucide="megaphone" class="w-4 h-4"></i> Publish Notices
           </button>
           <button onclick="switchOfficerSection('complaints')" id="nav-btn-complaints" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
             <i data-lucide="message-square" class="w-4 h-4"></i> Grievances & Helpdesk
+            <span id="nav-badge-complaints" class="ml-auto bg-rose-500 text-white font-bold text-[9px] px-2 py-0.5 rounded-full">4</span>
           </button>
           <button onclick="switchOfficerSection('reports')" id="nav-btn-reports" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive">
             <i data-lucide="bar-chart-3" class="w-4 h-4"></i> Battalion Reports
           </button>
           <div class="border-t border-slate-200 my-2 pt-2"></div>
-          <a href="login.html" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 text-red-600 hover:bg-red-50 font-bold">
+          <a href="login.html" onclick="if(window.NCCStore) NCCStore.logout()" class="w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 text-red-600 hover:bg-red-50 font-bold">
             <i data-lucide="log-out" class="w-4 h-4"></i> Logout
           </a>
         </nav>
@@ -265,11 +267,11 @@
         <!-- ================= SECTION 1: OVERVIEW DASHBOARD ================= -->
         <div id="section-overview" class="space-y-6">
           
-          <!-- Welcome Banner -->
+          <!-- Fixed Time-Based Welcome Greeting Banner -->
           <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 class="text-2xl font-black text-navy tracking-tight">Good Morning, CTO Gaurav Singh</h1>
-              <p class="text-xs text-subtext mt-1">Here is your battalion operational summary for today, 13 September 2026.</p>
+              <h1 id="officer-welcome-greeting" class="text-2xl font-black text-navy tracking-tight">Good Morning, CTO Gaurav Singh</h1>
+              <p id="officer-welcome-date" class="text-xs text-subtext mt-1">Here is your battalion operational summary for today, 13 September 2026.</p>
             </div>
             <div class="flex items-center gap-2">
               <button onclick="switchOfficerSection('attendance')" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-xs flex items-center gap-2">
@@ -281,54 +283,54 @@
             </div>
           </div>
 
-          <!-- 8 LARGE OPERATIONAL STATISTICS CARDS -->
+          <!-- 8 LARGE OPERATIONAL STATISTICS CARDS (Dynamically calculated from NCCStore) -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             
-            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-navy hover:shadow-md transition-all">
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-navy hover:shadow-md transition-all cursor-pointer" onclick="switchOfficerSection('cadets')">
               <div class="text-[11px] font-bold text-slate-500 uppercase">Total Cadets</div>
-              <div class="text-2xl font-black text-navy mt-1">106</div>
-              <div class="text-[10px] text-slate-400 mt-0.5">Across all 3 Years</div>
+              <div id="stat-total-cadets" class="text-2xl font-black text-navy mt-1">116</div>
+              <div class="text-[10px] text-slate-400 mt-0.5">Across all 3 Units</div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-blue-500 hover:shadow-md transition-all">
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-blue-500 hover:shadow-md transition-all cursor-pointer" onclick="filterCadetsByUnit('Army Unit')">
               <div class="text-[11px] font-bold text-slate-500 uppercase">Army Unit</div>
-              <div class="text-2xl font-black text-blue-600 mt-1">53</div>
+              <div id="stat-army-cadets" class="text-2xl font-black text-blue-600 mt-1">56</div>
               <div class="text-[10px] text-slate-400 mt-0.5">8 MP Artillery Bn</div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-indigo-500 hover:shadow-md transition-all">
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-indigo-500 hover:shadow-md transition-all cursor-pointer" onclick="filterCadetsByUnit('Naval Unit')">
               <div class="text-[11px] font-bold text-slate-500 uppercase">Naval Unit</div>
-              <div class="text-2xl font-black text-indigo-600 mt-1">80</div>
+              <div id="stat-naval-cadets" class="text-2xl font-black text-indigo-600 mt-1">32</div>
               <div class="text-[10px] text-slate-400 mt-0.5">3 MP Naval Unit</div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-amber-500 hover:shadow-md transition-all">
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-amber-500 hover:shadow-md transition-all cursor-pointer" onclick="switchOfficerSection('applications')">
               <div class="text-[11px] font-bold text-slate-500 uppercase">Pending Regs</div>
-              <div class="text-2xl font-black text-amber-600 mt-1">18</div>
+              <div id="stat-pending-regs" class="text-2xl font-black text-amber-600 mt-1">18</div>
               <div class="text-[10px] text-amber-600 font-bold mt-0.5">Action Required</div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-500 hover:shadow-md transition-all">
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-emerald-500 hover:shadow-md transition-all cursor-pointer" onclick="switchOfficerSection('camps')">
               <div class="text-[11px] font-bold text-slate-500 uppercase">Upcoming Camps</div>
-              <div class="text-2xl font-black text-emerald-600 mt-1">6</div>
+              <div id="stat-upcoming-camps" class="text-2xl font-black text-emerald-600 mt-1">6</div>
               <div class="text-[10px] text-slate-400 mt-0.5">ATC, RDC, TSC</div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-teal-500 hover:shadow-md transition-all">
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-teal-500 hover:shadow-md transition-all cursor-pointer" onclick="switchOfficerSection('attendance')">
               <div class="text-[11px] font-bold text-slate-500 uppercase">Today's Attendance</div>
-              <div class="text-2xl font-black text-teal-600 mt-1">91%</div>
+              <div id="stat-today-attendance" class="text-2xl font-black text-teal-600 mt-1">91%</div>
               <div class="text-[10px] text-emerald-600 font-bold mt-0.5">High Participation</div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-purple-500 hover:shadow-md transition-all">
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-purple-500 hover:shadow-md transition-all cursor-pointer" onclick="switchOfficerSection('certificates')">
               <div class="text-[11px] font-bold text-slate-500 uppercase">Pending Docs</div>
-              <div class="text-2xl font-black text-purple-600 mt-1">12</div>
+              <div id="stat-pending-docs" class="text-2xl font-black text-purple-600 mt-1">12</div>
               <div class="text-[10px] text-slate-400 mt-0.5">Certificates to review</div>
             </div>
 
-            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-rose-500 hover:shadow-md transition-all">
+            <div class="glass-card p-4 rounded-2xl border-l-4 border-l-rose-500 hover:shadow-md transition-all cursor-pointer" onclick="switchOfficerSection('complaints')">
               <div class="text-[11px] font-bold text-slate-500 uppercase">Complaints</div>
-              <div class="text-2xl font-black text-rose-600 mt-1">4</div>
+              <div id="stat-complaints" class="text-2xl font-black text-rose-600 mt-1">4</div>
               <div class="text-[10px] text-slate-400 mt-0.5">Grievance Desk</div>
             </div>
 
@@ -342,10 +344,10 @@
               </div>
               <div>
                 <strong class="text-amber-900 text-sm">Attendance Alert Threshold Notice</strong>
-                <p class="text-amber-800">12 Cadets are currently below the required 75% parade attendance mark for Cert B eligibility.</p>
+                <p class="text-amber-800"><span id="alert-cadets-count">12</span> Cadets are currently below the required <span id="alert-threshold-pct">75%</span> parade attendance mark for Cert B eligibility.</p>
               </div>
             </div>
-            <button onclick="switchOfficerSection('cadets')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1.5 rounded-xl shrink-0">
+            <button onclick="filterFlaggedCadets()" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-1.5 rounded-xl shrink-0 transition-colors">
               View Flagged Cadets
             </button>
           </div>
@@ -355,42 +357,29 @@
             
             <!-- Battalion Attendance Trend Chart -->
             <div class="glass-card p-5 rounded-3xl space-y-3">
-              <h3 class="text-sm font-extrabold text-navy uppercase tracking-wider">Battalion Attendance Analytics</h3>
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-navy uppercase tracking-wider">Battalion Attendance Analytics</h3>
+                <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">Parade Trend 91%</span>
+              </div>
               <div class="h-60 w-full">
                 <canvas id="officerAttendanceChart"></canvas>
               </div>
             </div>
 
-            <!-- Recent Cadet Registrations -->
+            <!-- New Cadet Registrations -->
             <div class="glass-card p-5 rounded-3xl space-y-3 flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-3">
                   <h3 class="text-sm font-extrabold text-navy uppercase tracking-wider">New Cadet Registrations</h3>
-                  <button onclick="switchOfficerSection('applications')" class="text-xs text-itmblue font-bold hover:underline">Review All</button>
+                  <button onclick="switchOfficerSection('applications')" class="text-xs text-itmblue font-bold hover:underline">Review All (<span id="overview-pending-count">18</span>)</button>
                 </div>
-                <div class="space-y-2 text-xs divide-y divide-slate-100">
-                  <div class="pt-2 first:pt-0 flex items-center justify-between">
-                    <div>
-                      <div class="font-bold text-slate-800">Rahul Sharma</div>
-                      <div class="text-[10px] text-slate-500">B.Tech CSE • 8 MP Art Bn</div>
-                    </div>
-                    <button onclick="approveApplication(1)" class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-200">Approve</button>
-                  </div>
-                  <div class="pt-2 flex items-center justify-between">
-                    <div>
-                      <div class="font-bold text-slate-800">Ananya Verma</div>
-                      <div class="text-[10px] text-slate-500">B.Tech ECE • Girls Battalion</div>
-                    </div>
-                    <button onclick="approveApplication(2)" class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-200">Approve</button>
-                  </div>
-                  <div class="pt-2 flex items-center justify-between">
-                    <div>
-                      <div class="font-bold text-slate-800">Vikram Singh</div>
-                      <div class="text-[10px] text-slate-500">B.Tech Mech • Army Unit</div>
-                    </div>
-                    <button onclick="approveApplication(3)" class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-200">Approve</button>
-                  </div>
+                <div id="overview-registrations-list" class="space-y-2 text-xs divide-y divide-slate-100">
+                  <!-- Populated dynamically -->
                 </div>
+              </div>
+              <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <span>Syncs live with student submissions</span>
+                <button onclick="switchOfficerSection('applications')" class="font-bold text-navy hover:underline">Go to Applications Desk &rarr;</button>
               </div>
             </div>
 
@@ -404,113 +393,105 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
               <div>
                 <h2 class="text-xl font-extrabold text-navy">Cadet Directory Management</h2>
-                <p class="text-xs text-subtext">View, edit, and filter enrolled cadets in 8 MP Battalion</p>
+                <p class="text-xs text-subtext">Search, filter, edit details, and promote cadets across all battalions</p>
               </div>
-              <button onclick="openAddCadetModal()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2">
-                <i data-lucide="user-plus" class="w-4 h-4"></i> + Add New Cadet
-              </button>
+              <div class="flex items-center gap-2">
+                <button onclick="exportCadetRosterCSV()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 border border-slate-300">
+                  <i data-lucide="download" class="w-4 h-4"></i> Export CSV
+                </button>
+                <button onclick="openAddCadetModal()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-xs">
+                  <i data-lucide="user-plus" class="w-4 h-4"></i> + Add New Cadet
+                </button>
+              </div>
             </div>
 
             <!-- Filters Bar -->
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-              <input type="text" id="cadet-search-input" onkeyup="filterCadetsTable()" placeholder="Search Name, Roll, Rank..." class="p-2.5 rounded-xl border border-slate-300">
-              <select id="cadet-unit-filter" onchange="filterCadetsTable()" class="p-2.5 rounded-xl border border-slate-300">
+              <input type="text" id="cadet-search-input" onkeyup="renderCadetManagementTable()" placeholder="Search Name, Roll, Rank..." class="p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-itmblue focus:outline-none">
+              <select id="cadet-unit-filter" onchange="renderCadetManagementTable()" class="p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-itmblue focus:outline-none">
                 <option value="">All Units</option>
-                <option value="Army Unit">Army Unit</option>
-                <option value="Girls Battalion">Girls Battalion</option>
-                <option value="Naval Unit">Naval Unit</option>
+                <option value="8 MP Artillery Battalion">8 MP Artillery Bn</option>
+                <option value="2 MP Girls Battalion">2 MP Girls Bn</option>
+                <option value="3 MP Naval Unit">3 MP Naval Unit</option>
               </select>
-              <select id="cadet-year-filter" onchange="filterCadetsTable()" class="p-2.5 rounded-xl border border-slate-300">
-                <option value="">All Years</option>
-                <option value="1st Year">1st Year</option>
-                <option value="2nd Year">2nd Year</option>
-                <option value="3rd Year">3rd Year</option>
+              <select id="cadet-wing-filter" onchange="renderCadetManagementTable()" class="p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-itmblue focus:outline-none">
+                <option value="">All Wings</option>
+                <option value="Army Wing">Army Wing</option>
+                <option value="Girls Wing">Girls Wing</option>
+                <option value="Naval Wing">Naval Wing</option>
               </select>
-              <select id="cadet-status-filter" onchange="filterCadetsTable()" class="p-2.5 rounded-xl border border-slate-300">
-                <option value="">All Statuses</option>
-                <option value="ACTIVE">ACTIVE</option>
-                <option value="WARNING">WARNING (&lt;75%)</option>
+              <select id="cadet-status-filter" onchange="renderCadetManagementTable()" class="p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-itmblue focus:outline-none">
+                <option value="">All Attendance Status</option>
+                <option value="ACTIVE">Eligible (&ge;75%)</option>
+                <option value="WARNING">Flagged (&lt;75%)</option>
               </select>
             </div>
 
-            <!-- Table -->
+            <!-- Cadets Table -->
             <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
               <table class="w-full text-left" id="cadets-table">
                 <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
                   <tr>
                     <th class="p-3.5">Cadet Name</th>
-                    <th class="p-3.5">Roll / Student ID</th>
-                    <th class="p-3.5">Course</th>
+                    <th class="p-3.5">Regimental / Roll No</th>
+                    <th class="p-3.5">Course / Year</th>
                     <th class="p-3.5">Unit</th>
                     <th class="p-3.5">Rank</th>
                     <th class="p-3.5">Attendance</th>
-                    <th class="p-3.5">Action</th>
+                    <th class="p-3.5 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
-                  <tr class="hover:bg-slate-50">
-                    <td class="p-3.5 flex items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full object-cover">
-                      <span class="font-bold text-slate-900">Sairam Krishna</span>
-                    </td>
-                    <td class="p-3.5 font-mono">BETN1A125216</td>
-                    <td class="p-3.5">B.Tech AI/ML</td>
-                    <td class="p-3.5">Army Unit</td>
-                    <td class="p-3.5">Cadet (CDT)</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">86%</span></td>
-                    <td class="p-3.5">
-                      <button onclick="editCadetModal('Sairam Krishna')" class="text-itmblue font-bold hover:underline">Edit</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-slate-50">
-                    <td class="p-3.5 flex items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full object-cover">
-                      <span class="font-bold text-slate-900">Rahul Sharma</span>
-                    </td>
-                    <td class="p-3.5 font-mono">2024-CSE-042</td>
-                    <td class="p-3.5">B.Tech CSE</td>
-                    <td class="p-3.5">Army Unit</td>
-                    <td class="p-3.5">Senior Under Officer (SUO)</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">82%</span></td>
-                    <td class="p-3.5">
-                      <button onclick="editCadetModal('Rahul Sharma')" class="text-itmblue font-bold hover:underline">Edit</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-slate-50">
-                    <td class="p-3.5 flex items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full object-cover">
-                      <span class="font-bold text-slate-900">Ananya Verma</span>
-                    </td>
-                    <td class="p-3.5 font-mono">2024-ECE-108</td>
-                    <td class="p-3.5">B.Tech ECE</td>
-                    <td class="p-3.5">Girls Battalion</td>
-                    <td class="p-3.5">Junior Under Officer (JUO)</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">94%</span></td>
-                    <td class="p-3.5">
-                      <button onclick="editCadetModal('Ananya Verma')" class="text-itmblue font-bold hover:underline">Edit</button>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-slate-50">
-                    <td class="p-3.5 flex items-center gap-2">
-                      <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80" class="w-7 h-7 rounded-full object-cover">
-                      <span class="font-bold text-slate-900">Vikram Singh</span>
-                    </td>
-                    <td class="p-3.5 font-mono">2023-ME-019</td>
-                    <td class="p-3.5">B.Tech Mechanical</td>
-                    <td class="p-3.5">Army Unit</td>
-                    <td class="p-3.5">CQMS</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-red-100 text-red-800 font-bold">68%</span></td>
-                    <td class="p-3.5">
-                      <button onclick="editCadetModal('Vikram Singh')" class="text-itmblue font-bold hover:underline">Edit</button>
-                    </td>
-                  </tr>
+                <tbody id="cadet-roster-tbody" class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                  <!-- Populated from NCCStore -->
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- ================= SECTION 3: ATTENDANCE MANAGEMENT SYSTEM (CORE) ================= -->
+        <!-- ================= SECTION 3: SELECTION & APPLICATIONS ================= -->
+        <div id="section-applications" class="hidden space-y-6">
+          <div class="glass-card p-6 rounded-3xl space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-navy flex items-center gap-2">
+                  <i data-lucide="user-check" class="w-6 h-6 text-amber-500"></i> Selection & Applications Desk
+                </h2>
+                <p class="text-xs text-subtext">Review and approve/reject camp applications and new cadet candidate enrollments</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="filterApplicationsByStatus('pending')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs px-3 py-1.5 rounded-xl">
+                  Show Pending Only
+                </button>
+                <button onclick="filterApplicationsByStatus('all')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-1.5 rounded-xl">
+                  Show All
+                </button>
+              </div>
+            </div>
+
+            <!-- Applications Table -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
+              <table class="w-full text-left">
+                <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
+                  <tr>
+                    <th class="p-3.5">Cadet / Candidate</th>
+                    <th class="p-3.5">Camp / Event Target</th>
+                    <th class="p-3.5">Battalion Unit</th>
+                    <th class="p-3.5">Date Applied</th>
+                    <th class="p-3.5">Status</th>
+                    <th class="p-3.5">Remarks</th>
+                    <th class="p-3.5 text-center">Decision</th>
+                  </tr>
+                </thead>
+                <tbody id="applications-table-tbody" class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= SECTION 4: ATTENDANCE MANAGEMENT SYSTEM ================= -->
         <div id="section-attendance" class="hidden space-y-6">
           <div class="glass-card p-6 rounded-3xl space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
@@ -518,14 +499,14 @@
                 <h2 class="text-xl font-extrabold text-navy flex items-center gap-2">
                   <i data-lucide="check-square" class="w-6 h-6 text-emerald-600"></i> Battalion Attendance Marking Desk
                 </h2>
-                <p class="text-xs text-subtext">Record parade, theory, and camp attendance in real-time</p>
+                <p class="text-xs text-subtext">Record parade, theory, and camp attendance in real-time (instant sync with Student & Admin portals)</p>
               </div>
               <div class="flex items-center gap-2">
-                <button onclick="markAllPresent()" class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3.5 py-2 rounded-xl hover:bg-emerald-200">
+                <button onclick="markAllAttendance('P')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-xs px-3.5 py-2 rounded-xl transition-colors">
                   MARK ALL PRESENT
                 </button>
-                <button onclick="saveAttendance()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs">
-                  SAVE ATTENDANCE
+                <button onclick="saveAttendanceSession()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition-colors flex items-center gap-1.5">
+                  <i data-lucide="save" class="w-4 h-4"></i> SAVE ATTENDANCE
                 </button>
               </div>
             </div>
@@ -534,32 +515,33 @@
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs bg-slate-50 p-4 rounded-2xl border border-slate-200">
               <div>
                 <label class="font-bold text-slate-700 block mb-1">Select Battalion Unit</label>
-                <select class="w-full p-2 rounded-xl border border-slate-300">
-                  <option>8 MP Artillery Battalion (Army)</option>
-                  <option>1st MP Girls Battalion</option>
-                  <option>4th MP Naval Unit</option>
+                <select id="attendance-session-unit" onchange="renderAttendanceMarkingTable()" class="w-full p-2 rounded-xl border border-slate-300 font-semibold">
+                  <option value="8 MP Artillery Battalion">8 MP Artillery Battalion (Army)</option>
+                  <option value="2 MP Girls Battalion">2 MP Girls Battalion</option>
+                  <option value="3 MP Naval Unit">3 MP Naval Unit</option>
                 </select>
               </div>
               <div>
                 <label class="font-bold text-slate-700 block mb-1">Session Date</label>
-                <input type="date" value="2026-09-13" class="w-full p-2 rounded-xl border border-slate-300 font-bold">
+                <input type="date" id="attendance-session-date" class="w-full p-2 rounded-xl border border-slate-300 font-bold">
               </div>
               <div>
-                <label class="font-bold text-slate-700 block mb-1">Session Type</label>
-                <select class="w-full p-2 rounded-xl border border-slate-300">
-                  <option>Practical Drill & Parade Ground</option>
-                  <option>NCC Theory & Leadership</option>
-                  <option>Rifle Marksmanship .22</option>
-                  <option>Obstacle Course Clearing</option>
+                <label class="font-bold text-slate-700 block mb-1">Session Type / Subject</label>
+                <select id="attendance-session-type" class="w-full p-2 rounded-xl border border-slate-300 font-semibold">
+                  <option value="Practical Drill & Uniform Inspection">Practical Drill & Uniform Inspection</option>
+                  <option value="NCC Theory & Leadership Dynamics">NCC Theory & Leadership Dynamics</option>
+                  <option value="Rifle Marksmanship .22 Deluxe">Rifle Marksmanship .22 Deluxe</option>
+                  <option value="Obstacle Course Training">Obstacle Course Training</option>
+                  <option value="Map Reading & Fieldcraft">Map Reading & Fieldcraft</option>
                 </select>
               </div>
               <div>
                 <label class="font-bold text-slate-700 block mb-1">Instructor / ANO</label>
-                <input type="text" value="CTO Gaurav Singh Shekhawat" class="w-full p-2 rounded-xl border border-slate-300 font-semibold bg-white" readonly>
+                <input type="text" id="attendance-session-instructor" value="CTO Gaurav Singh Shekhawat" class="w-full p-2 rounded-xl border border-slate-300 font-semibold bg-white" readonly>
               </div>
             </div>
 
-            <!-- Attendance Cadet List with Choose - Tick Type Option -->
+            <!-- Attendance Cadet List with P / A / L Radio Ticks -->
             <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
               <table class="w-full text-left">
                 <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
@@ -567,275 +549,271 @@
                     <th class="p-3.5">Cadet Name</th>
                     <th class="p-3.5">Roll Number</th>
                     <th class="p-3.5">Unit</th>
-                    <th class="p-3.5 text-center">Status Choice (Tick Option)</th>
+                    <th class="p-3.5 text-center">Attendance Choice (P / A / L)</th>
                   </tr>
                 </thead>
                 <tbody id="attendance-marking-tbody" class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
-                  <tr class="hover:bg-slate-50/80">
-                    <td class="p-3.5 font-bold text-slate-900">Cadet Sairam Krishna</td>
-                    <td class="p-3.5 font-mono">BETN1A125216</td>
-                    <td class="p-3.5">8 MP Art Bn</td>
-                    <td class="p-3.5 text-center">
-                      <div class="inline-flex items-center gap-2">
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-emerald-100 transition-all">
-                          <input type="radio" name="att-cadet-1" value="P" checked onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
-                          <span>✓ Present</span>
-                        </label>
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
-                          <input type="radio" name="att-cadet-1" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
-                          <span>✗ Absent</span>
-                        </label>
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
-                          <input type="radio" name="att-cadet-1" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
-                          <span>🕒 Late</span>
-                        </label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-slate-50/80">
-                    <td class="p-3.5 font-bold text-slate-900">Cadet Rahul Sharma</td>
-                    <td class="p-3.5 font-mono">2024-CSE-042</td>
-                    <td class="p-3.5">8 MP Art Bn</td>
-                    <td class="p-3.5 text-center">
-                      <div class="inline-flex items-center gap-2">
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-emerald-100 transition-all">
-                          <input type="radio" name="att-cadet-2" value="P" checked onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
-                          <span>✓ Present</span>
-                        </label>
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
-                          <input type="radio" name="att-cadet-2" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
-                          <span>✗ Absent</span>
-                        </label>
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
-                          <input type="radio" name="att-cadet-2" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
-                          <span>🕒 Late</span>
-                        </label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-slate-50/80">
-                    <td class="p-3.5 font-bold text-slate-900">Cadet Ananya Verma</td>
-                    <td class="p-3.5 font-mono">2024-ECE-108</td>
-                    <td class="p-3.5">Girls Battalion</td>
-                    <td class="p-3.5 text-center">
-                      <div class="inline-flex items-center gap-2">
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 transition-all">
-                          <input type="radio" name="att-cadet-3" value="P" onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
-                          <span>✓ Present</span>
-                        </label>
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
-                          <input type="radio" name="att-cadet-3" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
-                          <span>✗ Absent</span>
-                        </label>
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-amber-100 transition-all">
-                          <input type="radio" name="att-cadet-3" value="L" checked onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
-                          <span>🕒 Late</span>
-                        </label>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="hover:bg-slate-50/80">
-                    <td class="p-3.5 font-bold text-slate-900">Cadet Vikram Singh</td>
-                    <td class="p-3.5 font-mono">2023-ME-019</td>
-                    <td class="p-3.5">8 MP Art Bn</td>
-                    <td class="p-3.5 text-center">
-                      <div class="inline-flex items-center gap-2">
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 transition-all">
-                          <input type="radio" name="att-cadet-4" value="P" onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
-                          <span>✓ Present</span>
-                        </label>
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-300 bg-red-50 text-red-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-red-100 transition-all">
-                          <input type="radio" name="att-cadet-4" value="A" checked onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
-                          <span>✗ Absent</span>
-                        </label>
-                        <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
-                          <input type="radio" name="att-cadet-4" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
-                          <span>🕒 Late</span>
-                        </label>
-                      </div>
-                    </td>
-                  </tr>
+                  <!-- Populated from NCCStore cadets -->
                 </tbody>
               </table>
-            </div>     </div>
+            </div>
+
           </div>
         </div>
 
-        <!-- ================= SECTION 4: CAMP MANAGEMENT & ELIGIBILITY ================= -->
+        <!-- ================= SECTION 5: CAMP MANAGEMENT ================= -->
         <div id="section-camps" class="hidden space-y-6">
           <div class="glass-card p-6 rounded-3xl space-y-4">
-            <div class="flex items-center justify-between border-b pb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
               <div>
                 <h2 class="text-xl font-extrabold text-navy">Camp Management & Selection Rules</h2>
-                <p class="text-xs text-subtext">Publish new camps, configure eligibility rules, select cadets</p>
+                <p class="text-xs text-subtext">Publish new camps, configure eligibility rules, close camps, and review applicants</p>
               </div>
-              <button onclick="openCreateCampModal()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2">
+              <button onclick="openCreateCampModal()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-xs">
                 <i data-lucide="plus" class="w-4 h-4"></i> Create New Camp
               </button>
             </div>
 
-            <!-- Existing Camps Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-                <div class="flex justify-between items-center">
-                  <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[10px]">ATC-102 • Institutional</span>
-                  <span class="text-emerald-600 font-bold">Capacity: 45 / 60</span>
-                </div>
-                <h3 class="font-extrabold text-navy text-base">Annual Training Camp (ATC)</h3>
-                <p class="text-slate-600">Minimum attendance criteria: <strong>75%</strong></p>
-                <div class="flex gap-2">
-                  <button onclick="showToast('Editing Camp Criteria...')" class="flex-1 bg-slate-100 text-navy font-bold py-1.5 rounded-lg">Edit Criteria</button>
-                  <button onclick="showToast('Viewing 45 selected cadets...')" class="flex-1 bg-navy text-white font-bold py-1.5 rounded-lg">View Participants</button>
-                </div>
-              </div>
-
-              <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-                <div class="flex justify-between items-center">
-                  <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-[10px]">RDC-2027 • National</span>
-                  <span class="text-amber-600 font-bold">Capacity: 12 / 15</span>
-                </div>
-                <h3 class="font-extrabold text-navy text-base">Republic Day Camp (RDC Delhi)</h3>
-                <p class="text-slate-600">Minimum attendance criteria: <strong>85% + Drill Trial</strong></p>
-                <div class="flex gap-2">
-                  <button onclick="showToast('Editing Camp Criteria...')" class="flex-1 bg-slate-100 text-navy font-bold py-1.5 rounded-lg">Edit Criteria</button>
-                  <button onclick="showToast('Viewing 12 selected cadets...')" class="flex-1 bg-navy text-white font-bold py-1.5 rounded-lg">View Participants</button>
-                </div>
-              </div>
+            <!-- Existing Camps Grid -->
+            <div id="officer-camps-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <!-- Rendered dynamically from NCCStore.data.camps -->
             </div>
           </div>
         </div>
 
-        <!-- ================= SECTION 5: CERTIFICATE VERIFICATION ================= -->
+        <!-- ================= SECTION 6: CERTIFICATE VERIFICATION ================= -->
         <div id="section-certificates" class="hidden space-y-6">
           <div class="glass-card p-6 rounded-3xl space-y-4">
-            <h2 class="text-xl font-extrabold text-navy">Pending Certificate Review Desk</h2>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-navy">Certificate Verification & Endorsement Desk</h2>
+                <p class="text-xs text-subtext">Review uploaded certificates from cadets, approve to issue digital credentials, or reject with feedback</p>
+              </div>
+              <span class="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
+                Live Documents Queue
+              </span>
+            </div>
+
             <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
               <table class="w-full text-left">
                 <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
                   <tr>
-                    <th class="p-3.5">Student Name</th>
-                    <th class="p-3.5">Camp / Event</th>
+                    <th class="p-3.5">Cadet Name</th>
+                    <th class="p-3.5">Certificate Type / Number</th>
+                    <th class="p-3.5">Unit</th>
                     <th class="p-3.5">Submission Date</th>
                     <th class="p-3.5">Status</th>
-                    <th class="p-3.5">Action</th>
+                    <th class="p-3.5">Remarks</th>
+                    <th class="p-3.5 text-center">Verification Action</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
-                  <tr>
-                    <td class="p-3.5 font-bold">Cadet Sairam Krishna</td>
-                    <td class="p-3.5">RDC Rajpath Participation Cert</td>
-                    <td class="p-3.5">01 Sep 2026</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">Under Review</span></td>
-                    <td class="p-3.5 space-x-2">
-                      <button onclick="verifyCertDoc('Sairam Krishna')" class="bg-emerald-600 text-white px-3 py-1 rounded-lg font-bold">Verify ✓</button>
-                      <button onclick="rejectCertDoc('Sairam Krishna')" class="bg-red-600 text-white px-3 py-1 rounded-lg font-bold">Reject</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="p-3.5 font-bold">Cadet Ananya Verma</td>
-                    <td class="p-3.5">NIC Shimla Cultural Lead Cert</td>
-                    <td class="p-3.5">05 Sep 2026</td>
-                    <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">Under Review</span></td>
-                    <td class="p-3.5 space-x-2">
-                      <button onclick="verifyCertDoc('Ananya Verma')" class="bg-emerald-600 text-white px-3 py-1 rounded-lg font-bold">Verify ✓</button>
-                      <button onclick="rejectCertDoc('Ananya Verma')" class="bg-red-600 text-white px-3 py-1 rounded-lg font-bold">Reject</button>
-                    </td>
-                  </tr>
+                <tbody id="certificates-verify-tbody" class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                  <!-- Rendered dynamically from NCCStore.data.certificates -->
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- ================= SECTION 6: PUBLISH NOTICES ================= -->
+        <!-- ================= SECTION 7: PUBLISH NOTICES ================= -->
         <div id="section-notices" class="hidden space-y-6">
-          <div class="glass-card p-6 rounded-3xl space-y-4">
-            <h2 class="text-xl font-extrabold text-navy">Publish Official Battalion Notice</h2>
-            <form onsubmit="handlePublishNoticeSubmit(event)" class="space-y-4 text-xs">
+          <div class="glass-card p-6 rounded-3xl space-y-6">
+            <div>
+              <h2 class="text-xl font-extrabold text-navy">Publish Official Battalion Notice</h2>
+              <p class="text-xs text-subtext">Broadcast announcements, uniform inspections, and examination schedules directly to student portals</p>
+            </div>
+
+            <form onsubmit="handlePublishNoticeSubmit(event)" class="space-y-4 text-xs bg-slate-50 p-5 rounded-2xl border border-slate-200">
               <div>
                 <label class="font-bold text-slate-700 block mb-1">Notice Title</label>
-                <input type="text" id="notice-title" placeholder="e.g. Mandatory Uniform Inspection on Saturday" class="w-full p-3 rounded-xl border border-slate-300 font-semibold" required>
+                <input type="text" id="officer-notice-title" placeholder="e.g. Mandatory Uniform & Drill Inspection on Saturday" class="w-full p-3 rounded-xl border border-slate-300 font-semibold focus:ring-2 focus:ring-itmblue focus:outline-none" required>
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label class="font-bold text-slate-700 block mb-1">Target Audience</label>
-                  <select class="w-full p-2.5 rounded-xl border border-slate-300">
-                    <option>All Cadets</option>
-                    <option>8 MP Artillery Battalion</option>
-                    <option>Girls Battalion</option>
-                    <option>Naval Unit</option>
+                  <select id="officer-notice-audience" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold">
+                    <option value="All">All Cadets (Directorate)</option>
+                    <option value="Army">8 MP Artillery Battalion (Army)</option>
+                    <option value="Girls">2 MP Girls Battalion</option>
+                    <option value="Naval">3 MP Naval Unit</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="font-bold text-slate-700 block mb-1">Category</label>
+                  <select id="officer-notice-category" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold">
+                    <option value="Urgent">Urgent / Parade Order</option>
+                    <option value="Camps">Camps & Expeditions</option>
+                    <option value="Exams">Exams (Cert B & C)</option>
+                    <option value="Selection">Selection & Trials</option>
+                    <option value="Scholarship">Scholarship & CWS</option>
                   </select>
                 </div>
                 <div>
                   <label class="font-bold text-slate-700 block mb-1">Priority Level</label>
-                  <select class="w-full p-2.5 rounded-xl border border-slate-300">
-                    <option>IMPORTANT</option>
-                    <option>GENERAL</option>
-                    <option>DEADLINE</option>
+                  <select id="officer-notice-priority" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold">
+                    <option value="Urgent">URGENT</option>
+                    <option value="Important">IMPORTANT</option>
+                    <option value="Normal">NORMAL</option>
                   </select>
-                </div>
-                <div>
-                  <label class="font-bold text-slate-700 block mb-1">Publish Date</label>
-                  <input type="date" value="2026-09-13" class="w-full p-2 rounded-xl border border-slate-300">
                 </div>
               </div>
               <div>
-                <label class="font-bold text-slate-700 block mb-1">Notice Content</label>
-                <textarea rows="4" placeholder="Enter notice text details..." class="w-full p-3 rounded-xl border border-slate-300" required></textarea>
+                <label class="font-bold text-slate-700 block mb-1">Detailed Content</label>
+                <textarea id="officer-notice-content" rows="3" placeholder="Enter complete operational instructions, reporting timings, uniform code..." class="w-full p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-itmblue focus:outline-none" required></textarea>
               </div>
-              <button type="submit" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 px-6 rounded-xl">
-                Publish Notice Immediately
+              <button type="submit" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 px-6 rounded-xl flex items-center gap-2 shadow-xs transition-colors">
+                <i data-lucide="send" class="w-4 h-4"></i> Broadcast Notice Immediately
               </button>
             </form>
+
+            <!-- Published Notices Table -->
+            <div class="space-y-3 pt-2">
+              <h3 class="font-bold text-sm text-navy uppercase">Currently Published Battalion Notices</h3>
+              <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
+                <table class="w-full text-left">
+                  <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
+                    <tr>
+                      <th class="p-3.5">Title</th>
+                      <th class="p-3.5">Category</th>
+                      <th class="p-3.5">Target</th>
+                      <th class="p-3.5">Date</th>
+                      <th class="p-3.5">Priority</th>
+                      <th class="p-3.5 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="published-notices-tbody" class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <!-- ================= SECTION 7: COMPLAINTS DESK ================= -->
+        <!-- ================= SECTION 8: GRIEVANCES & HELPDESK ================= -->
         <div id="section-complaints" class="hidden space-y-6">
           <div class="glass-card p-6 rounded-3xl space-y-4">
-            <h2 class="text-xl font-extrabold text-navy">Cadet Grievances & Complaints Desk</h2>
-            <div class="space-y-3 text-xs">
-              <div class="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
-                <div>
-                  <h4 class="font-bold text-slate-900 text-sm">Attendance Discrepancy on 14 Aug Parade</h4>
-                  <p class="text-slate-500">Submitted by Cadet Sairam Krishna • CMP-2026-04</p>
-                </div>
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">RESOLVED ✓</span>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+              <div>
+                <h2 class="text-xl font-extrabold text-navy">Cadet Grievances & Helpdesk Desk</h2>
+                <p class="text-xs text-subtext">Review service requests, attendance disputes, uniform requests, and reply directly</p>
               </div>
-              <div class="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
-                <div>
-                  <h4 class="font-bold text-slate-900 text-sm">Replacement Request for Boots Size 9</h4>
-                  <p class="text-slate-500">Submitted by Cadet Vikram Singh • CMP-2026-09</p>
-                </div>
-                <button onclick="resolveComplaintModal('CMP-2026-09')" class="bg-[#1677FF] text-white px-3 py-1 rounded-xl font-bold">Respond & Resolve</button>
-              </div>
+              <span class="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                Official ANO Helpdesk
+              </span>
+            </div>
+
+            <div id="officer-grievances-list" class="space-y-3 text-xs">
+              <!-- Rendered dynamically from NCCStore.data.grievances -->
             </div>
           </div>
         </div>
 
-        <!-- ================= SECTION 8: REPORTS & ANALYTICS ================= -->
+        <!-- ================= SECTION 9: BATTALION REPORTS ================= -->
         <div id="section-reports" class="hidden space-y-6">
           <div class="glass-card p-6 rounded-3xl space-y-4">
             <div class="flex items-center justify-between border-b pb-4">
-              <h2 class="text-xl font-extrabold text-navy">Battalion Operational Reports</h2>
-              <button onclick="showToast('Exporting Battalion Report PDF...')" class="bg-navy text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2">
-                <i data-lucide="download" class="w-4 h-4"></i> Export PDF Report
-              </button>
+              <div>
+                <h2 class="text-xl font-extrabold text-navy">Battalion Operational Reports</h2>
+                <p class="text-xs text-subtext">Generate, print, and export official Directorate muster rolls and camp audits</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="exportReportsCSV()" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-xs transition-colors">
+                  <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Export CSV
+                </button>
+                <button onclick="exportReportsPDF()" class="bg-navy hover:bg-navy-dark text-white font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-xs transition-colors">
+                  <i data-lucide="download" class="w-4 h-4"></i> Export PDF Report
+                </button>
+              </div>
             </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <h4 class="font-bold text-navy">Monthly Attendance Audit</h4>
-                <p class="text-slate-500 mt-1">Average attendance: 88.4% across 8 MP Artillery Bn.</p>
+              <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-extrabold text-navy text-sm">Monthly Attendance Audit</h4>
+                  <i data-lucide="calendar" class="w-5 h-5 text-emerald-600"></i>
+                </div>
+                <p class="text-slate-600 leading-relaxed">Overall parade attendance standing: <strong class="text-emerald-700">91%</strong> across 8 MP Artillery Bn.</p>
+                <button onclick="downloadSpecificReport('attendance')" class="w-full text-center bg-white hover:bg-slate-100 text-slate-800 font-bold py-1.5 rounded-xl border border-slate-200 transition-colors">
+                  Download Muster Sheet &rarr;
+                </button>
               </div>
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <h4 class="font-bold text-navy">Camp Participation Summary</h4>
-                <p class="text-slate-500 mt-1">45 Cadets selected for ATC-102.</p>
+              <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-extrabold text-navy text-sm">Camp Participation Summary</h4>
+                  <i data-lucide="tent" class="w-5 h-5 text-itmblue"></i>
+                </div>
+                <p class="text-slate-600 leading-relaxed">Active enrollments: <strong>85 Cadets</strong> registered for Annual Training Camp (ATC-102).</p>
+                <button onclick="downloadSpecificReport('camps')" class="w-full text-center bg-white hover:bg-slate-100 text-slate-800 font-bold py-1.5 rounded-xl border border-slate-200 transition-colors">
+                  Download Camp Nominal Roll &rarr;
+                </button>
               </div>
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                <h4 class="font-bold text-navy">Certificate B Eligibility</h4>
-                <p class="text-slate-500 mt-1">38 Cadets qualified for 2026-27 exam.</p>
+              <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-extrabold text-navy text-sm">Certificate B Eligibility</h4>
+                  <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
+                </div>
+                <p class="text-slate-600 leading-relaxed">Eligible Cadets: <strong>48 Cadets</strong> meet the minimum &ge;75% parade threshold.</p>
+                <button onclick="downloadSpecificReport('certs')" class="w-full text-center bg-white hover:bg-slate-100 text-slate-800 font-bold py-1.5 rounded-xl border border-slate-200 transition-colors">
+                  Download Eligibility List &rarr;
+                </button>
               </div>
             </div>
+
+            <!-- Detailed Statistical Table -->
+            <div class="pt-4 border-t border-slate-200">
+              <h3 class="font-bold text-sm text-navy mb-3 uppercase">Unit Strength Summary (Calculated from Central Store)</h3>
+              <div class="overflow-x-auto rounded-2xl border border-slate-200 text-xs">
+                <table class="w-full text-left">
+                  <thead class="bg-[#071D3A] text-white uppercase text-[11px]">
+                    <tr>
+                      <th class="p-3.5">Battalion / Unit</th>
+                      <th class="p-3.5">Active Cadets</th>
+                      <th class="p-3.5">Avg Attendance</th>
+                      <th class="p-3.5">Camps Active</th>
+                      <th class="p-3.5">Cert B Eligible</th>
+                      <th class="p-3.5">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-200 bg-white font-medium text-slate-700">
+                    <tr>
+                      <td class="p-3.5 font-bold">8 MP Artillery Battalion (Army)</td>
+                      <td class="p-3.5 font-bold text-navy">56</td>
+                      <td class="p-3.5 text-emerald-700 font-bold">89.4%</td>
+                      <td class="p-3.5">4</td>
+                      <td class="p-3.5">46</td>
+                      <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Excellent</span></td>
+                    </tr>
+                    <tr>
+                      <td class="p-3.5 font-bold">3 MP Naval Unit</td>
+                      <td class="p-3.5 font-bold text-navy">32</td>
+                      <td class="p-3.5 text-emerald-700 font-bold">92.1%</td>
+                      <td class="p-3.5">2</td>
+                      <td class="p-3.5">28</td>
+                      <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Excellent</span></td>
+                    </tr>
+                    <tr>
+                      <td class="p-3.5 font-bold">2 MP Girls Battalion</td>
+                      <td class="p-3.5 font-bold text-navy">28</td>
+                      <td class="p-3.5 text-emerald-700 font-bold">93.0%</td>
+                      <td class="p-3.5">2</td>
+                      <td class="p-3.5">26</td>
+                      <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Excellent</span></td>
+                    </tr>
+                    <tr class="bg-slate-50 font-extrabold text-navy">
+                      <td class="p-3.5">TOTAL BATTALION STRENGTH</td>
+                      <td class="p-3.5 text-blue-700">116 Cadets</td>
+                      <td class="p-3.5 text-emerald-700">91.0%</td>
+                      <td class="p-3.5">6 Camps</td>
+                      <td class="p-3.5">100 Cadets</td>
+                      <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">Fully Operational</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -843,21 +821,23 @@
 
     </div>
 
-    <!-- 4. FOOTER -->
+    <!-- 3. FOOTER -->
     <footer class="bg-white border-t border-slate-200 mt-12 py-6 px-4 text-center text-xs text-slate-500">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <strong class="text-navy">ITM UNIVERSITY GWALIOR</strong> • Officer Operations Hub
         </div>
         <div>
-          © 2026 ITM University Gwalior. Officer Portal.
+          &copy; 2026 ITM University Gwalior. Unified NCC Management Portal.
         </div>
       </div>
     </footer>
 
   </div>
 
-  <!-- Modal: Add New Cadet / Multiple Persons -->
+  <!-- ================= MODALS ================= -->
+
+  <!-- Modal: Add New Cadet -->
   <div id="modal-add-cadet" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative border-2 border-[#1677FF]">
       <button onclick="closeModal('modal-add-cadet')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
@@ -865,11 +845,8 @@
       </button>
       <div class="flex items-center justify-between border-b pb-3">
         <h3 class="font-extrabold text-navy text-base flex items-center gap-2">
-          <i data-lucide="user-plus" class="w-5 h-5 text-itmblue"></i> Register Cadet / Add Persons
+          <i data-lucide="user-plus" class="w-5 h-5 text-itmblue"></i> Register Cadet / Add Person
         </h3>
-        <button onclick="batchLoopAddCadets()" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[11px] px-2.5 py-1 rounded-lg border border-amber-300">
-          ⚡ Loop Add 3 Cadets
-        </button>
       </div>
       
       <form onsubmit="handleSingleAddCadet(event)" class="space-y-3 text-xs">
@@ -891,9 +868,9 @@
           <div>
             <label class="font-bold text-slate-700 block mb-1">Battalion Unit</label>
             <select id="add-cadet-unit" class="w-full p-2.5 rounded-xl border border-slate-300">
-              <option value="8 MP Art Bn">8 MP Artillery Bn</option>
-              <option value="Girls Battalion">Girls Battalion</option>
-              <option value="Naval Unit">Naval Unit</option>
+              <option value="8 MP Artillery Battalion">8 MP Artillery Bn</option>
+              <option value="2 MP Girls Battalion">2 MP Girls Bn</option>
+              <option value="3 MP Naval Unit">3 MP Naval Unit</option>
             </select>
           </div>
           <div>
@@ -902,28 +879,914 @@
               <option value="Cadet (CDT)">Cadet (CDT)</option>
               <option value="Corporal (CPL)">Corporal (CPL)</option>
               <option value="Sergeant (SGT)">Sergeant (SGT)</option>
+              <option value="JUO">Junior Under Officer (JUO)</option>
               <option value="SUO">Senior Under Officer (SUO)</option>
             </select>
           </div>
         </div>
-        <button type="submit" class="w-full bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Phone Number</label>
+            <input type="tel" id="add-cadet-phone" placeholder="+91 98765 00000" class="w-full p-2.5 rounded-xl border border-slate-300">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Email</label>
+            <input type="email" id="add-cadet-email" placeholder="cadet@itmuniversity.ac.in" class="w-full p-2.5 rounded-xl border border-slate-300">
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-xs transition-colors">
           + Add Person To Database & Attendance List
         </button>
       </form>
     </div>
   </div>
 
+  <!-- Modal: Promote Cadet -->
+  <div id="modal-promote-cadet" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl relative border-2 border-amber-400">
+      <button onclick="closeModal('modal-promote-cadet')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="font-extrabold text-navy text-base flex items-center gap-2">
+        <i data-lucide="award" class="w-5 h-5 text-amber-500"></i> Promote Cadet Rank
+      </h3>
+      <form onsubmit="handlePromoteCadetSubmit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="promote-cadet-id">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Cadet Name</label>
+          <input type="text" id="promote-cadet-name" class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50 font-bold" readonly>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Current Rank</label>
+          <input type="text" id="promote-current-rank" class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50 font-semibold" readonly>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Select New Rank</label>
+          <select id="promote-new-rank" class="w-full p-2.5 rounded-xl border border-slate-300 font-bold text-navy">
+            <option value="Cadet (CDT)">Cadet (CDT)</option>
+            <option value="Lance Corporal (L/CPL)">Lance Corporal (L/CPL)</option>
+            <option value="Corporal (CPL)">Corporal (CPL)</option>
+            <option value="Sergeant (SGT)">Sergeant (SGT)</option>
+            <option value="Company Quartermaster Sergeant (CQMS)">Company Quartermaster Sergeant (CQMS)</option>
+            <option value="Company Sergeant Major (CSM)">Company Sergeant Major (CSM)</option>
+            <option value="Junior Under Officer (JUO)">Junior Under Officer (JUO)</option>
+            <option value="Senior Under Officer (SUO)">Senior Under Officer (SUO)</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-xl text-xs transition-colors">
+          Confirm Official Promotion & Order
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Create New Camp -->
+  <div id="modal-create-camp" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative border-2 border-navy">
+      <button onclick="closeModal('modal-create-camp')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="font-extrabold text-navy text-base flex items-center gap-2">
+        <i data-lucide="tent" class="w-5 h-5 text-itmblue"></i> Create & Publish New Training Camp
+      </h3>
+      <form onsubmit="handleCreateCampSubmit(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Camp Name</label>
+          <input type="text" id="create-camp-name" placeholder="e.g. Combined Annual Training Camp (CATC-XV)" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold" required>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Camp Type Code</label>
+            <select id="create-camp-type" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold">
+              <option value="ATC">ATC (Annual Training Camp)</option>
+              <option value="RDC">RDC (Republic Day Camp)</option>
+              <option value="TSC">TSC (Thal Sainik Camp)</option>
+              <option value="EBSB">EBSB (Ek Bharat Shreshtha Bharat)</option>
+              <option value="ALC">ALC (Advance Leadership Camp)</option>
+              <option value="AITC">AITC (Trekking Expedition)</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Maximum Slots</label>
+            <input type="number" id="create-camp-slots" value="60" min="10" max="250" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold" required>
+          </div>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Camp Location</label>
+          <input type="text" id="create-camp-location" placeholder="e.g. Gwalior Fort Grounds / Kamptee Nagpur" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold" required>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Start Date</label>
+            <input type="date" id="create-camp-start" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold" required>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">End Date</label>
+            <input type="date" id="create-camp-end" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold" required>
+          </div>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Eligibility Criteria</label>
+          <input type="text" id="create-camp-eligibility" value="75% Attendance Required" class="w-full p-2.5 rounded-xl border border-slate-300 font-semibold" required>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Camp Description</label>
+          <textarea id="create-camp-desc" rows="2" placeholder="Brief outline of syllabus, drill, firing, or obstacle training..." class="w-full p-2.5 rounded-xl border border-slate-300" required></textarea>
+        </div>
+        <button type="submit" class="w-full bg-navy hover:bg-navy-dark text-white font-bold py-2.5 rounded-xl text-xs transition-colors">
+          Publish Camp & Open Student Applications
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Reply to Grievance -->
+  <div id="modal-reply-grievance" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative border-2 border-[#1677FF]">
+      <button onclick="closeModal('modal-reply-grievance')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="font-extrabold text-navy text-base flex items-center gap-2">
+        <i data-lucide="message-square" class="w-5 h-5 text-itmblue"></i> Respond to Cadet Grievance
+      </h3>
+      <form onsubmit="handleReplyGrievanceSubmit(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="reply-grv-id">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Ticket Number & Subject</label>
+          <input type="text" id="reply-grv-subject" class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50 font-bold" readonly>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Cadet Details</label>
+          <input type="text" id="reply-grv-cadet" class="w-full p-2.5 rounded-xl border border-slate-300 bg-slate-50 font-semibold" readonly>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Cadet Message Details</label>
+          <div id="reply-grv-details" class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-slate-700 text-xs italic"></div>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Official ANO Resolution / Response</label>
+          <textarea id="reply-grv-message" rows="3" placeholder="Enter resolution notes, store pickup timings, or administrative correction details..." class="w-full p-2.5 rounded-xl border border-slate-300" required></textarea>
+        </div>
+        <button type="submit" class="w-full bg-[#1677FF] hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs transition-colors">
+          Submit Response & Mark Ticket Resolved
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed bottom-6 left-6 z-50 hidden bg-navy text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fadeIn border border-amber-400">
+  <div id="toast" class="fixed bottom-6 left-6 z-50 hidden bg-[#082B57] text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs font-semibold animate-fadeIn border border-amber-400">
     <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
     <span id="toast-text">Action completed successfully!</span>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
   <script>
     lucide.createIcons();
 
-    // Ambient BG Canvas
+    // Responsive Mobile Sidebar Toggle
+    function toggleMobileSidebar() {
+      const aside = document.getElementById('officer-sidebar');
+      aside.classList.toggle('hidden');
+    }
+
+    // Dynamic Time-Based Greeting & Date Function
+    function updateGreetingAndDate() {
+      const greetingEl = document.getElementById('officer-welcome-greeting');
+      const dateEl = document.getElementById('officer-welcome-date');
+      const now = new Date();
+      const hour = now.getHours();
+
+      let greeting = 'Good Morning';
+      if (hour >= 12 && hour < 17) greeting = 'Good Afternoon';
+      else if (hour >= 17) greeting = 'Good Evening';
+
+      if (greetingEl) {
+        greetingEl.innerText = `${greeting}, CTO Gaurav Singh`;
+      }
+
+      if (dateEl) {
+        const formattedDate = now.toLocaleDateString('en-GB', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        });
+        dateEl.innerText = `Here is your battalion operational summary for today, ${formattedDate}.`;
+      }
+    }
+
+    // Sidebar Section Switcher
+    function switchOfficerSection(secId) {
+      const secs = ['overview', 'cadets', 'applications', 'attendance', 'camps', 'certificates', 'notices', 'complaints', 'reports'];
+      secs.forEach(s => {
+        const el = document.getElementById(`section-${s}`);
+        const btn = document.getElementById(`nav-btn-${s}`);
+        if (el) el.classList.toggle('hidden', s !== secId);
+        if (btn) {
+          if (s === secId) {
+            btn.className = "w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-active";
+          } else {
+            btn.className = "w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive";
+          }
+        }
+      });
+      // Scroll to top of section
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleQuickActionMenu() {
+      const menu = document.getElementById('quick-action-menu');
+      if (menu) menu.classList.toggle('hidden');
+    }
+
+    function showToast(txt) {
+      const toast = document.getElementById('toast');
+      const txtEl = document.getElementById('toast-text');
+      if (txtEl) txtEl.innerText = txt;
+      if (toast) {
+        toast.classList.remove('hidden');
+        setTimeout(() => { toast.classList.add('hidden'); }, 3500);
+      }
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // ================= CENTRAL STORE RENDERING ENGINE =================
+    function renderOfficerDashboard() {
+      if (!window.NCCStore) return;
+      const stats = NCCStore.getStats();
+
+      // Update Top Stat Numbers
+      const totalCadetsEl = document.getElementById('stat-total-cadets');
+      if (totalCadetsEl) totalCadetsEl.innerText = stats.totalCadets;
+
+      const armyCadetsEl = document.getElementById('stat-army-cadets');
+      if (armyCadetsEl) armyCadetsEl.innerText = stats.armyCount;
+
+      const navalCadetsEl = document.getElementById('stat-naval-cadets');
+      if (navalCadetsEl) navalCadetsEl.innerText = stats.navalCount;
+
+      const pendingRegsEl = document.getElementById('stat-pending-regs');
+      if (pendingRegsEl) pendingRegsEl.innerText = stats.totalPendingRegs;
+
+      const upcomingCampsEl = document.getElementById('stat-upcoming-camps');
+      if (upcomingCampsEl) upcomingCampsEl.innerText = stats.upcomingCampsCount;
+
+      const todayAttEl = document.getElementById('stat-today-attendance');
+      if (todayAttEl) todayAttEl.innerText = stats.todayAttendancePct + '%';
+
+      const pendingDocsEl = document.getElementById('stat-pending-docs');
+      if (pendingDocsEl) pendingDocsEl.innerText = stats.pendingDocsCount;
+
+      const complaintsEl = document.getElementById('stat-complaints');
+      if (complaintsEl) complaintsEl.innerText = stats.openComplaintsCount;
+
+      // Update Badges
+      const badgeApp = document.getElementById('nav-badge-applications');
+      if (badgeApp) badgeApp.innerText = stats.totalPendingRegs;
+
+      const badgeCert = document.getElementById('nav-badge-certificates');
+      if (badgeCert) badgeCert.innerText = stats.pendingDocsCount;
+
+      const badgeComplaints = document.getElementById('nav-badge-complaints');
+      if (badgeComplaints) badgeComplaints.innerText = stats.openComplaintsCount;
+
+      // Update Attendance Threshold Alert Banner
+      const alertCadets = document.getElementById('alert-cadets-count');
+      if (alertCadets) alertCadets.innerText = stats.flaggedCadetsCount;
+
+      const alertThresh = document.getElementById('alert-threshold-pct');
+      if (alertThresh) alertThresh.innerText = stats.threshold + '%';
+
+      // Render Individual Modules
+      renderOverviewRegistrations();
+      renderCadetManagementTable();
+      renderApplicationsTable();
+      renderAttendanceMarkingTable();
+      renderOfficerCamps();
+      renderCertificatesVerificationTable();
+      renderPublishedNoticesTable();
+      renderOfficerGrievances();
+
+      // Refresh icons
+      lucide.createIcons();
+    }
+
+    // 1. Overview Registrations Preview
+    function renderOverviewRegistrations() {
+      const container = document.getElementById('overview-registrations-list');
+      const countEl = document.getElementById('overview-pending-count');
+      if (!container || !window.NCCStore) return;
+
+      const apps = (NCCStore.data.camp_applications || []).filter(a => a.status === 'pending');
+      const cadets = (NCCStore.data.cadets || []).filter(c => c.status === 'Pending Registration');
+      
+      const totalPending = apps.length + cadets.length;
+      if (countEl) countEl.innerText = totalPending;
+
+      let html = '';
+      cadets.slice(0, 2).forEach(c => {
+        html += `
+          <div class="pt-2 first:pt-0 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-slate-800">${c.name}</div>
+              <div class="text-[10px] text-slate-500">${c.course} • ${c.unit}</div>
+            </div>
+            <button onclick="approveCadetRegistration('${c.id}')" class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-200 transition-colors">Approve</button>
+          </div>
+        `;
+      });
+
+      apps.slice(0, 3).forEach(a => {
+        html += `
+          <div class="pt-2 first:pt-0 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-slate-800">${a.cadetName}</div>
+              <div class="text-[10px] text-slate-500">${a.campName}</div>
+            </div>
+            <button onclick="reviewAppQuick('${a.id}', 'approved')" class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-200 transition-colors">Approve</button>
+          </div>
+        `;
+      });
+
+      if (!html) {
+        html = `<div class="text-center py-4 text-slate-400">All pending applications reviewed ✓</div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    // 2. Cadet Directory Table
+    function renderCadetManagementTable() {
+      const tbody = document.getElementById('cadet-roster-tbody');
+      if (!tbody || !window.NCCStore) return;
+
+      const q = (document.getElementById('cadet-search-input')?.value || '').toLowerCase().trim();
+      const unitFilter = document.getElementById('cadet-unit-filter')?.value || '';
+      const wingFilter = document.getElementById('cadet-wing-filter')?.value || '';
+      const statusFilter = document.getElementById('cadet-status-filter')?.value || '';
+      const threshold = NCCStore.data.settings?.minAttendanceThreshold || 75;
+
+      const cadets = (NCCStore.data.cadets || []).filter(c => {
+        if (q && !c.name.toLowerCase().includes(q) && !c.rollNo.toLowerCase().includes(q) && !c.rank.toLowerCase().includes(q)) return false;
+        if (unitFilter && c.unit !== unitFilter) return false;
+        if (wingFilter && c.wing && !c.wing.includes(wingFilter)) return false;
+        if (statusFilter === 'ACTIVE' && c.attendancePct < threshold) return false;
+        if (statusFilter === 'WARNING' && c.attendancePct >= threshold) return false;
+        return true;
+      });
+
+      if (cadets.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-medium">No cadets match the specified filter criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = cadets.map(c => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="p-3.5 flex items-center gap-2">
+            <img src="${c.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-300">
+            <div>
+              <span class="font-bold text-slate-900 block">${c.name}</span>
+              <span class="text-[10px] text-slate-500">${c.wing || 'Army Wing'}</span>
+            </div>
+          </td>
+          <td class="p-3.5 font-mono text-slate-600 font-bold">${c.rollNo}</td>
+          <td class="p-3.5">${c.course}</td>
+          <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">${c.unit}</span></td>
+          <td class="p-3.5 font-bold text-navy">${c.rank}</td>
+          <td class="p-3.5">
+            <span class="px-2 py-0.5 rounded ${c.attendancePct >= threshold ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'} font-bold">
+              ${c.attendancePct}%
+            </span>
+          </td>
+          <td class="p-3.5 text-center space-x-2">
+            <button onclick="openPromoteModal('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${c.rank}')" class="text-amber-600 hover:text-amber-800 font-bold hover:underline">Promote</button>
+            <button onclick="showToast('Viewing full file for ${c.name.replace(/'/g, "\\'")}')" class="text-itmblue hover:underline font-bold">View</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // 3. Selection & Applications Table
+    function renderApplicationsTable(statusFilter = 'all') {
+      const tbody = document.getElementById('applications-table-tbody');
+      if (!tbody || !window.NCCStore) return;
+
+      let apps = NCCStore.data.camp_applications || [];
+      if (statusFilter === 'pending') {
+        apps = apps.filter(a => a.status === 'pending');
+      }
+
+      if (apps.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 font-medium">No camp applications in this queue.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = apps.map(a => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="p-3.5">
+            <div class="font-bold text-slate-900">${a.cadetName}</div>
+            <div class="text-[10px] font-mono text-slate-500">${a.rollNo || a.cadetId}</div>
+          </td>
+          <td class="p-3.5 font-bold text-navy">${a.campName}</td>
+          <td class="p-3.5">${a.unit || '8 MP Artillery Bn'}</td>
+          <td class="p-3.5 font-mono text-slate-500">${a.appliedDate}</td>
+          <td class="p-3.5">
+            <span class="px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
+              a.status === 'approved' ? 'bg-emerald-100 text-emerald-800' :
+              a.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
+            }">
+              ${a.status.toUpperCase()}
+            </span>
+          </td>
+          <td class="p-3.5 text-slate-600 italic text-[11px] max-w-[200px] truncate">${a.remarks || 'No remarks'}</td>
+          <td class="p-3.5 text-center space-x-1.5">
+            ${a.status === 'pending' ? `
+              <button onclick="reviewAppQuick('${a.id}', 'approved')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1 rounded-lg transition-colors">Approve</button>
+              <button onclick="reviewAppQuick('${a.id}', 'rejected')" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1 rounded-lg transition-colors">Reject</button>
+            ` : `
+              <span class="text-slate-400 font-bold text-[11px]">Processed</span>
+            `}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // 4. Attendance Marking Table
+    function renderAttendanceMarkingTable() {
+      const tbody = document.getElementById('attendance-marking-tbody');
+      if (!tbody || !window.NCCStore) return;
+
+      const unit = document.getElementById('attendance-session-unit')?.value || '8 MP Artillery Battalion';
+      let cadets = (NCCStore.data.cadets || []).filter(c => c.status === 'Active');
+      if (unit) {
+        cadets = cadets.filter(c => c.unit.includes(unit.split(' ')[0]));
+      }
+      if (cadets.length === 0) {
+        cadets = (NCCStore.data.cadets || []).slice(0, 8);
+      }
+
+      tbody.innerHTML = cadets.map((c, idx) => `
+        <tr class="hover:bg-slate-50/80 transition-colors">
+          <td class="p-3.5">
+            <div class="font-bold text-slate-900">${c.name}</div>
+            <div class="text-[10px] text-slate-500">${c.rank}</div>
+          </td>
+          <td class="p-3.5 font-mono text-slate-700 font-bold">${c.rollNo}</td>
+          <td class="p-3.5 text-slate-600">${c.unit}</td>
+          <td class="p-3.5 text-center">
+            <div class="inline-flex items-center gap-2" data-cadet-roll="${c.rollNo}">
+              <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-emerald-100 transition-all">
+                <input type="radio" name="att-${c.rollNo}" value="P" checked onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
+                <span>✓ Present</span>
+              </label>
+              <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
+                <input type="radio" name="att-${c.rollNo}" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
+                <span>✗ Absent</span>
+              </label>
+              <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
+                <input type="radio" name="att-${c.rollNo}" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
+                <span>🕒 Late</span>
+              </label>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function handleAttTick(radio) {
+      const container = radio.closest('.inline-flex');
+      if (!container) return;
+      const labels = container.querySelectorAll('.att-tick-card');
+      labels.forEach(lbl => {
+        const inp = lbl.querySelector('input[type="radio"]');
+        if (inp && inp.checked) {
+          if (inp.value === 'P') {
+            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
+          } else if (inp.value === 'A') {
+            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-300 bg-red-50 text-red-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
+          } else {
+            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
+          }
+        } else {
+          lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-slate-100 transition-all";
+        }
+      });
+    }
+
+    function markAllAttendance(val) {
+      const radios = document.querySelectorAll(`input[type="radio"][value="${val}"]`);
+      radios.forEach(r => {
+        r.checked = true;
+        handleAttTick(r);
+      });
+      showToast(`All cadets marked ${val === 'P' ? 'PRESENT (✓)' : val} for session!`);
+    }
+
+    function saveAttendanceSession() {
+      if (!window.NCCStore) return;
+      const date = document.getElementById('attendance-session-date').value || new Date().toISOString().split('T')[0];
+      const sessionName = document.getElementById('attendance-session-type').value;
+      const unit = document.getElementById('attendance-session-unit').value;
+      const instructor = document.getElementById('attendance-session-instructor').value;
+
+      const records = {};
+      const containers = document.querySelectorAll('[data-cadet-roll]');
+      containers.forEach(c => {
+        const roll = c.getAttribute('data-cadet-roll');
+        const checked = c.querySelector('input[type="radio"]:checked');
+        records[roll] = checked ? checked.value : 'P';
+      });
+
+      NCCStore.markAttendance({
+        date: date,
+        sessionName: sessionName,
+        unit: unit,
+        instructor: instructor,
+        records: records
+      }, { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+
+      showToast(`Attendance saved & recorded for ${Object.keys(records).length} cadets! Synced to Student & Admin portals ✓`);
+    }
+
+    // 5. Camps Grid
+    function renderOfficerCamps() {
+      const container = document.getElementById('officer-camps-grid');
+      if (!container || !window.NCCStore) return;
+
+      const camps = NCCStore.data.camps || [];
+      container.innerHTML = camps.map(camp => `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3 hover:shadow-md transition-shadow">
+          <div class="flex justify-between items-center">
+            <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[10px]">${camp.type} • ${camp.status}</span>
+            <span class="text-emerald-600 font-bold">Capacity: ${camp.enrolled || 0} / ${camp.maxSlots}</span>
+          </div>
+          <h3 class="font-extrabold text-navy text-base">${camp.name}</h3>
+          <p class="text-slate-600">${camp.description || 'Mandatory training camp for cadets.'}</p>
+          <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+            <span>Location: <strong>${camp.location}</strong></span>
+            <span>Eligibility: <strong>${camp.eligibility || '75% Attendance'}</strong></span>
+          </div>
+          <div class="flex gap-2 pt-2 border-t border-slate-100">
+            <button onclick="showToast('Viewing applicants for ${camp.name.replace(/'/g, "\\'")}')" class="flex-1 bg-navy hover:bg-navy-dark text-white font-bold py-1.5 rounded-lg transition-colors">View Applicants</button>
+            <button onclick="handleCloseCamp('${camp.id}')" class="bg-red-50 hover:bg-red-100 text-red-700 font-bold px-3 py-1.5 rounded-lg border border-red-200 transition-colors">Close Camp</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleCloseCamp(campId) {
+      if (confirm('Are you sure you want to close registrations for this camp?')) {
+        NCCStore.closeCamp(campId, { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+        showToast('Camp closed successfully. Updated across all portals.');
+      }
+    }
+
+    // 6. Certificate Verification
+    function renderCertificatesVerificationTable() {
+      const tbody = document.getElementById('certificates-verify-tbody');
+      if (!tbody || !window.NCCStore) return;
+
+      const certs = NCCStore.data.certificates || [];
+      tbody.innerHTML = certs.map(c => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="p-3.5">
+            <div class="font-bold text-slate-900">${c.cadetName}</div>
+            <div class="text-[10px] font-mono text-slate-500">${c.rollNo || ''}</div>
+          </td>
+          <td class="p-3.5">
+            <div class="font-bold text-navy">${c.type}</div>
+            <div class="text-[10px] font-mono text-slate-500">${c.certificateNumber}</div>
+          </td>
+          <td class="p-3.5">${c.unit || '8 MP Artillery Bn'}</td>
+          <td class="p-3.5 font-mono text-slate-500">${c.issueDate}</td>
+          <td class="p-3.5">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              c.status === 'issued' ? 'bg-emerald-100 text-emerald-800' :
+              c.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
+            }">
+              ${c.status === 'issued' ? 'VERIFIED ✓' : c.status === 'rejected' ? 'REJECTED' : 'UNDER REVIEW'}
+            </span>
+          </td>
+          <td class="p-3.5 text-slate-600 italic text-[11px]">${c.remarks || 'Pending verification'}</td>
+          <td class="p-3.5 text-center space-x-1.5">
+            ${c.status === 'pending_verification' ? `
+              <button onclick="handleVerifyCert('${c.id}', 'issued')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-lg font-bold transition-colors">Verify ✓</button>
+              <button onclick="handleVerifyCert('${c.id}', 'rejected')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg font-bold transition-colors">Reject</button>
+            ` : `
+              <span class="text-slate-400 font-bold text-[11px]">Endorsed</span>
+            `}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function handleVerifyCert(certId, status) {
+      const remarks = status === 'issued' ? 'Endorsed by ANO CTO Gaurav Singh' : 'Document rejected due to clarity issues';
+      NCCStore.verifyCertificate(certId, status, remarks, { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+      showToast(status === 'issued' ? 'Certificate verified & issued! Admin count incremented ✓' : 'Certificate marked rejected.');
+    }
+
+    // 7. Published Notices
+    function renderPublishedNoticesTable() {
+      const tbody = document.getElementById('published-notices-tbody');
+      if (!tbody || !window.NCCStore) return;
+
+      const notices = NCCStore.data.notices || [];
+      tbody.innerHTML = notices.map(n => `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="p-3.5 font-bold text-navy max-w-xs truncate">${n.title}</td>
+          <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold text-[10px]">${n.category}</span></td>
+          <td class="p-3.5 font-semibold">${n.targetAudience || 'All'}</td>
+          <td class="p-3.5 font-mono text-slate-500">${n.date}</td>
+          <td class="p-3.5">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
+              n.priority === 'Urgent' ? 'bg-red-100 text-red-800' :
+              n.priority === 'Important' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'
+            }">
+              ${n.priority || 'Normal'}
+            </span>
+          </td>
+          <td class="p-3.5 text-center">
+            <button onclick="handleDeleteNotice('${n.id}')" class="text-red-600 hover:text-red-800 font-bold hover:underline">Withdraw</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function handlePublishNoticeSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('officer-notice-title').value.trim();
+      const audience = document.getElementById('officer-notice-audience').value;
+      const category = document.getElementById('officer-notice-category').value;
+      const priority = document.getElementById('officer-notice-priority').value;
+      const content = document.getElementById('officer-notice-content').value.trim();
+
+      NCCStore.publishNotice({
+        title: title,
+        targetAudience: audience,
+        category: category,
+        priority: priority,
+        content: content
+      }, { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+
+      e.target.reset();
+      showToast('Official notice published! Synced to Cadet and Admin dashboards ✓');
+    }
+
+    function handleDeleteNotice(noticeId) {
+      if (confirm('Withdraw this notice from Cadet dashboards?')) {
+        NCCStore.deleteNotice(noticeId, { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+        showToast('Notice withdrawn from student view.');
+      }
+    }
+
+    // 8. Grievances & Helpdesk
+    function renderOfficerGrievances() {
+      const container = document.getElementById('officer-grievances-list');
+      if (!container || !window.NCCStore) return;
+
+      const grievances = NCCStore.data.grievances || [];
+      container.innerHTML = grievances.map(g => `
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-900 text-sm">${g.subject}</span>
+                <span class="font-mono text-slate-400 text-xs">#${g.ticketNo}</span>
+              </div>
+              <p class="text-slate-500 text-xs mt-0.5">Raised by: <strong>${g.cadetName}</strong> (${g.rollNo || ''}) • ${g.unit || '8 MP Art Bn'} on ${g.date}</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[10px] font-bold self-start sm:self-auto ${
+              g.status === 'Resolved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+            }">
+              ${g.status === 'Resolved' ? 'RESOLVED ✓' : 'UNDER REVIEW'}
+            </span>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-xl text-slate-700 text-xs border border-slate-100">
+            ${g.details}
+          </div>
+          ${g.replies && g.replies.length > 0 ? `
+            <div class="space-y-1.5 pt-1 pl-4 border-l-2 border-blue-500 text-xs">
+              ${g.replies.map(r => `
+                <div>
+                  <strong class="text-navy">${r.from}:</strong> <span class="text-slate-700">${r.message}</span>
+                  <span class="text-[10px] text-slate-400 block">${r.date}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          <div class="flex justify-end pt-2">
+            <button onclick="openReplyGrievanceModal('${g.id}', '${g.ticketNo}', '${g.subject.replace(/'/g, "\\'")}', '${g.cadetName.replace(/'/g, "\\'")}', '${g.details.replace(/'/g, "\\'")}')" class="bg-[#1677FF] hover:bg-blue-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition-colors">
+              ${g.status === 'Resolved' ? 'Add Follow-up Reply' : 'Respond & Resolve Ticket'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openReplyGrievanceModal(id, ticketNo, subject, cadet, details) {
+      document.getElementById('reply-grv-id').value = id;
+      document.getElementById('reply-grv-subject').value = `${ticketNo} - ${subject}`;
+      document.getElementById('reply-grv-cadet').value = cadet;
+      document.getElementById('reply-grv-details').innerText = details;
+      document.getElementById('modal-reply-grievance').classList.remove('hidden');
+    }
+
+    function handleReplyGrievanceSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('reply-grv-id').value;
+      const message = document.getElementById('reply-grv-message').value.trim();
+
+      NCCStore.replyGrievance(id, message, { name: 'CTO Gaurav Singh (ANO)', role: 'OFFICER' });
+      closeModal('modal-reply-grievance');
+      showToast('Response recorded and ticket marked Resolved! Visible to Cadet ✓');
+    }
+
+    // Modal Operations
+    function openAddCadetModal() {
+      document.getElementById('modal-add-cadet').classList.remove('hidden');
+    }
+
+    function handleSingleAddCadet(e) {
+      e.preventDefault();
+      const name = document.getElementById('add-cadet-name').value.trim();
+      const rollNo = document.getElementById('add-cadet-roll').value.trim();
+      const course = document.getElementById('add-cadet-course').value.trim();
+      const unit = document.getElementById('add-cadet-unit').value;
+      const rank = document.getElementById('add-cadet-rank').value;
+      const phone = document.getElementById('add-cadet-phone').value.trim();
+      const email = document.getElementById('add-cadet-email').value.trim();
+
+      NCCStore.addCadet({
+        name,
+        rollNo,
+        course,
+        unit,
+        rank,
+        phone,
+        email,
+        wing: unit.includes('Girls') ? 'Girls Wing (SW)' : unit.includes('Naval') ? 'Naval Wing' : 'Army Wing (SD)'
+      }, { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+
+      closeModal('modal-add-cadet');
+      e.target.reset();
+      showToast(`Cadet ${name} (${rollNo}) enrolled & saved to centralized database!`);
+    }
+
+    function openPromoteModal(id, name, rank) {
+      document.getElementById('promote-cadet-id').value = id;
+      document.getElementById('promote-cadet-name').value = name;
+      document.getElementById('promote-current-rank').value = rank;
+      document.getElementById('modal-promote-cadet').classList.remove('hidden');
+    }
+
+    function handlePromoteCadetSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('promote-cadet-id').value;
+      const newRank = document.getElementById('promote-new-rank').value;
+      NCCStore.promoteCadet(id, newRank, { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+      closeModal('modal-promote-cadet');
+      showToast(`Cadet successfully promoted to ${newRank}! Order recorded.`);
+    }
+
+    function openCreateCampModal() {
+      document.getElementById('modal-create-camp').classList.remove('hidden');
+    }
+
+    function handleCreateCampSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('create-camp-name').value.trim();
+      const type = document.getElementById('create-camp-type').value;
+      const maxSlots = parseInt(document.getElementById('create-camp-slots').value) || 60;
+      const location = document.getElementById('create-camp-location').value.trim();
+      const startDate = document.getElementById('create-camp-start').value;
+      const endDate = document.getElementById('create-camp-end').value;
+      const eligibility = document.getElementById('create-camp-eligibility').value.trim();
+      const description = document.getElementById('create-camp-desc').value.trim();
+
+      NCCStore.createCamp({
+        name,
+        type,
+        maxSlots,
+        location,
+        startDate,
+        endDate,
+        eligibility,
+        description,
+        inCharge: 'CTO Gaurav Singh Shekhawat'
+      }, { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+
+      closeModal('modal-create-camp');
+      e.target.reset();
+      showToast(`Camp "${name}" published! Cadets can now apply online.`);
+    }
+
+    function reviewAppQuick(appId, status) {
+      NCCStore.reviewCampApplication(appId, status, status === 'approved' ? 'Approved by ANO CTO Gaurav Singh' : 'Attendance/Medical criteria not fulfilled', { name: 'CTO Gaurav Singh', role: 'OFFICER' });
+      showToast(`Application ${status.toUpperCase()}! Synced to student dashboard.`);
+    }
+
+    function approveCadetRegistration(cadetId) {
+      const cadet = NCCStore.data.cadets.find(c => c.id === cadetId);
+      if (cadet) {
+        cadet.status = 'Active';
+        NCCStore.logAudit('CTO Gaurav Singh', 'OFFICER', 'REGISTRATION_APPROVED', 'Selection & Applications', `Approved registration for ${cadet.name}`);
+        NCCStore.save();
+        showToast(`Registration approved for ${cadet.name}! Active cadet profile created.`);
+      }
+    }
+
+    function filterCadetsByUnit(unitKeyword) {
+      switchOfficerSection('cadets');
+      const sel = document.getElementById('cadet-unit-filter');
+      if (sel) {
+        sel.value = unitKeyword === 'Army Unit' ? '8 MP Artillery Battalion' : unitKeyword === 'Naval Unit' ? '3 MP Naval Unit' : '';
+        renderCadetManagementTable();
+      }
+    }
+
+    function filterFlaggedCadets() {
+      switchOfficerSection('cadets');
+      const sel = document.getElementById('cadet-status-filter');
+      if (sel) {
+        sel.value = 'WARNING';
+        renderCadetManagementTable();
+      }
+    }
+
+    function filterApplicationsByStatus(st) {
+      renderApplicationsTable(st);
+    }
+
+    function exportCadetRosterCSV() {
+      if (!window.NCCStore) return;
+      const cadets = NCCStore.data.cadets || [];
+      let csv = 'Roll No,Regimental No,Name,Rank,Unit,Wing,Course,Semester,Attendance %\n';
+      cadets.forEach(c => {
+        csv += `"${c.rollNo}","${c.regimentalNo || ''}","${c.name}","${c.rank}","${c.unit}","${c.wing || ''}","${c.course}","${c.semester || ''}",${c.attendancePct}%\n`;
+      });
+      downloadFile(csv, 'Cadet_Battalion_Roster_2026.csv', 'text/csv');
+      showToast('Cadet muster roster exported successfully.');
+    }
+
+    function exportReportsCSV() {
+      if (!window.NCCStore) return;
+      const stats = NCCStore.getStats();
+      let csv = 'Metric,Value\n';
+      csv += `Total Active Cadets,${stats.totalCadets}\n`;
+      csv += `8 MP Artillery Battalion,${stats.armyCount}\n`;
+      csv += `3 MP Naval Unit,${stats.navalCount}\n`;
+      csv += `2 MP Girls Battalion,${stats.girlsCount}\n`;
+      csv += `Overall Attendance,${stats.todayAttendancePct}%\n`;
+      csv += `Certificates Issued,${stats.issuedCertsCount}\n`;
+      csv += `Upcoming Camps,${stats.upcomingCampsCount}\n`;
+      downloadFile(csv, 'NCC_Officer_Battalion_Report.csv', 'text/csv');
+      showToast('Battalion operational summary exported.');
+    }
+
+    function exportReportsPDF() {
+      showToast('Generating official Directorate PDF Muster Roll...');
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    }
+
+    function downloadSpecificReport(type) {
+      showToast(`Generating ${type.toUpperCase()} nominal roll...`);
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    }
+
+    function downloadFile(content, fileName, mimeType) {
+      const a = document.createElement('a');
+      const mime = mimeType || 'application/octet-stream';
+      a.href = 'data:' + mime + ';charset=utf-8,' + encodeURIComponent(content);
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    function handleGlobalOfficerSearch(query) {
+      if (!query || query.length < 2) return;
+      const q = query.toLowerCase();
+      const cadet = (NCCStore.data.cadets || []).find(c => c.name.toLowerCase().includes(q) || c.rollNo.toLowerCase().includes(q));
+      if (cadet) {
+        switchOfficerSection('cadets');
+        const input = document.getElementById('cadet-search-input');
+        if (input) {
+          input.value = cadet.name;
+          renderCadetManagementTable();
+        }
+      }
+    }
+
+    // Canvas Background
     (function initBg() {
       const canvas = document.getElementById('ambient-bg');
       if (!canvas) return;
@@ -950,242 +1813,62 @@
       draw();
     })();
 
-    // Sidebar Section Switcher
-    function switchOfficerSection(secId) {
-      const secs = ['overview', 'cadets', 'applications', 'attendance', 'camps', 'certificates', 'notices', 'complaints', 'reports'];
-      secs.forEach(s => {
-        const el = document.getElementById(`section-${s}`);
-        const btn = document.getElementById(`nav-btn-${s}`);
-        if (el) el.classList.toggle('hidden', s !== secId);
-        if (btn) {
-          if (s === secId) btn.className = "w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-active";
-          else btn.className = "w-full text-left px-4 py-2.5 rounded-2xl flex items-center gap-3 transition-all sidebar-inactive";
-        }
-      });
-    }
-
-    function toggleQuickActionMenu() {
-      document.getElementById('quick-action-menu').classList.toggle('hidden');
-    }
-
-    function showToast(txt) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-text').innerText = txt;
-      toast.classList.remove('hidden');
-      setTimeout(() => { toast.classList.add('hidden'); }, 3000);
-    }
-
-    function openCreateCampModal() {
-      document.getElementById('modal-create-camp').classList.remove('hidden');
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.add('hidden');
-    }
-
-    function markAllPresent() {
-      const pRadios = document.querySelectorAll('input[type="radio"][value="P"]');
-      pRadios.forEach(r => {
-        r.checked = true;
-        handleAttTick(r);
-      });
-      showToast('All cadets marked PRESENT (✓) for today session.');
-    }
-
-    function handleAttTick(radio) {
-      const container = radio.closest('.inline-flex');
-      if (!container) return;
-      const labels = container.querySelectorAll('.att-tick-card');
-      labels.forEach(lbl => {
-        const inp = lbl.querySelector('input[type="radio"]');
-        if (inp && inp.checked) {
-          if (inp.value === 'P') {
-            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
-          } else if (inp.value === 'A') {
-            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-red-300 bg-red-50 text-red-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
-          } else {
-            lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 font-bold text-xs cursor-pointer shadow-2xs transition-all";
-          }
-        } else {
-          lbl.className = "att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-slate-100 transition-all";
-        }
-      });
-    }
-
-    function verifyCertDoc(name) {
-      showToast(`Certificate verified for ${name}! Added to official credentials.`);
-    }
-
-    function handleCreateCampSubmit(e) {
-      e.preventDefault();
-      closeModal('modal-create-camp');
-      showToast('New camp created & published successfully!');
-    }
-
-    function openAddCadetModal() {
-      document.getElementById('modal-add-cadet').classList.remove('hidden');
-    }
-
-    // Default Cadet Data Store
-    let initialCadetsList = [
-      { roll: 'BETN1A125216', name: 'Cadet Sairam Krishna', course: 'B.Tech AI/ML', unit: '8 MP Art Bn', rank: 'Cadet (CDT)', attendance: 86 },
-      { roll: '2024-CSE-042', name: 'Cadet Rahul Sharma', course: 'B.Tech CSE', unit: '8 MP Art Bn', rank: 'SUO', attendance: 82 },
-      { roll: '2024-ECE-108', name: 'Cadet Ananya Verma', course: 'B.Tech ECE', unit: 'Girls Battalion', rank: 'JUO', attendance: 94 },
-      { roll: '2023-ME-019', name: 'Cadet Vikram Singh', course: 'B.Tech Mech', unit: '8 MP Art Bn', rank: 'CQMS', attendance: 68 }
-    ];
-
-    function getCadetsStore() {
-      const stored = localStorage.getItem('ncc_cadets_list');
-      if (!stored) {
-        localStorage.setItem('ncc_cadets_list', JSON.stringify(initialCadetsList));
-        return initialCadetsList;
-      }
-      return JSON.parse(stored);
-    }
-
-    function renderDynamicCadetLists() {
-      const cadets = getCadetsStore();
-      
-      // Update Attendance Table
-      const attBody = document.getElementById('attendance-marking-tbody');
-      if (attBody) {
-        attBody.innerHTML = cadets.map((c, idx) => `
-          <tr class="hover:bg-slate-50/80">
-            <td class="p-3.5 font-bold text-slate-900">${c.name}</td>
-            <td class="p-3.5 font-mono">${c.roll}</td>
-            <td class="p-3.5">${c.unit}</td>
-            <td class="p-3.5 text-center">
-              <div class="inline-flex items-center gap-2">
-                <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-xs cursor-pointer shadow-2xs hover:bg-emerald-100 transition-all">
-                  <input type="radio" name="att-cadet-${idx}" value="P" checked onchange="handleAttTick(this)" class="w-4 h-4 text-emerald-600 focus:ring-emerald-500 cursor-pointer">
-                  <span>✓ Present</span>
-                </label>
-                <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-red-50 hover:text-red-700 transition-all">
-                  <input type="radio" name="att-cadet-${idx}" value="A" onchange="handleAttTick(this)" class="w-4 h-4 text-red-600 focus:ring-red-500 cursor-pointer">
-                  <span>✗ Absent</span>
-                </label>
-                <label class="att-tick-card inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 font-bold text-xs cursor-pointer hover:bg-amber-50 hover:text-amber-700 transition-all">
-                  <input type="radio" name="att-cadet-${idx}" value="L" onchange="handleAttTick(this)" class="w-4 h-4 text-amber-600 focus:ring-amber-500 cursor-pointer">
-                  <span>🕒 Late</span>
-                </label>
-              </div>
-            </td>
-          </tr>
-        `).join('');
-      }
-
-      // Update Cadet Directory Table
-      const cadBody = document.querySelector('#cadets-table tbody');
-      if (cadBody) {
-        cadBody.innerHTML = cadets.map(c => `
-          <tr class="hover:bg-slate-50">
-            <td class="p-3.5 flex items-center gap-2">
-              <div class="w-7 h-7 rounded-full bg-navy text-white font-black text-xs flex items-center justify-center">${c.name.charAt(0)}</div>
-              <span class="font-bold text-slate-900">${c.name}</span>
-            </td>
-            <td class="p-3.5 font-mono">${c.roll}</td>
-            <td class="p-3.5">${c.course}</td>
-            <td class="p-3.5">${c.unit}</td>
-            <td class="p-3.5">${c.rank}</td>
-            <td class="p-3.5"><span class="px-2 py-0.5 rounded ${c.attendance >= 75 ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'} font-bold">${c.attendance}%</span></td>
-            <td class="p-3.5"><button onclick="editCadetModal('${c.name}')" class="text-itmblue font-bold hover:underline">Edit</button></td>
-          </tr>
-        `).join('');
-      }
-
-      // Update Total Cadet Counter
-      const totalCounter = document.querySelector('#section-overview .text-2xl.font-black.text-navy');
-      if (totalCounter) {
-        totalCounter.innerText = cadets.length;
-      }
-    }
-
-    function handleSingleAddCadet(e) {
-      e.preventDefault();
-      const name = document.getElementById('add-cadet-name').value.trim();
-      const roll = document.getElementById('add-cadet-roll').value.trim();
-      const course = document.getElementById('add-cadet-course').value.trim();
-      const unit = document.getElementById('add-cadet-unit').value;
-      const rank = document.getElementById('add-cadet-rank').value;
-
-      const cadets = getCadetsStore();
-      cadets.unshift({ name, roll, course, unit, rank, attendance: 90 });
-      localStorage.setItem('ncc_cadets_list', JSON.stringify(cadets));
-
-      closeModal('modal-add-cadet');
-      renderDynamicCadetLists();
-      showToast(`Added ${name} (${roll}) to Database & Attendance list!`);
-    }
-
-    function batchLoopAddCadets() {
-      const sampleNames = ['Rohan Das', 'Priya Roy', 'Arjun Kapoor'];
-      const cadets = getCadetsStore();
-      
-      // Loop creation
-      for (let i = 0; i < sampleNames.length; i++) {
-        const randId = Math.floor(1000 + Math.random() * 9000);
-        cadets.unshift({
-          name: sampleNames[i],
-          roll: `2026-CAD-${randId}`,
-          course: 'B.Tech IT',
-          unit: '8 MP Art Bn',
-          rank: 'Cadet (CDT)',
-          attendance: 88
-        });
-      }
-
-      localStorage.setItem('ncc_cadets_list', JSON.stringify(cadets));
-      closeModal('modal-add-cadet');
-      renderDynamicCadetLists();
-      showToast('Created 3 New Persons in Loop! All added to backend store.');
-    }
-
-    function saveAttendance() {
-      const cadets = getCadetsStore();
-      const records = {};
-      let markedCount = 0;
-
-      cadets.forEach((c, idx) => {
-        const checked = document.querySelector(`input[name="att-cadet-${idx}"]:checked`);
-        if (checked) {
-          records[c.roll] = checked.value;
-          markedCount++;
-        } else {
-          records[c.roll] = 'P';
-        }
-      });
-
-      const sessionRecord = {
-        date: new Date().toISOString().split('T')[0],
-        sessionName: 'Practical Drill & Parade Ground',
-        type: 'Practical',
-        instructor: 'CTO Gaurav Singh Shekhawat',
-        records: records,
-        timestamp: new Date().toLocaleTimeString()
-      };
-
-      // Save to shared localStorage
-      localStorage.setItem('ncc_attendance_records', JSON.stringify(sessionRecord));
-      showToast(`Saved attendance for ${markedCount} cadets! Synced to Student login pages ✓`);
-    }
-
+    // Initialize Dashboard on Page Load
     window.addEventListener('DOMContentLoaded', () => {
-      renderDynamicCadetLists();
-      const ctx = document.getElementById('officerAttendanceChart');
-      if (ctx) {
-        new Chart(ctx, {
+      updateGreetingAndDate();
+
+      // Set default attendance session date to today
+      const dateInput = document.getElementById('attendance-session-date');
+      if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
+
+      // Check Session & Role
+      if (window.NCCStore) {
+        const session = NCCStore.getSession();
+        if (session && session.user) {
+          const nameEl = document.getElementById('officer-header-name');
+          const sidebarNameEl = document.getElementById('sidebar-officer-name');
+          if (nameEl) nameEl.innerText = session.user.name;
+          if (sidebarNameEl) sidebarNameEl.innerText = session.user.name;
+        }
+
+        // Subscribe to Central Store reactive updates
+        NCCStore.subscribe(() => {
+          renderOfficerDashboard();
+        });
+
+        // Initial Render
+        renderOfficerDashboard();
+        window.renderDashboard = renderOfficerDashboard;
+        if (window.NCC_API) {
+          window.NCC_API.startPolling(renderOfficerDashboard, 30000);
+        }
+      }
+
+      // Attendance Chart
+      const chartCanvas = document.getElementById('officerAttendanceChart');
+      if (chartCanvas) {
+        new Chart(chartCanvas, {
           type: 'line',
           data: {
             labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
             datasets: [{
-              label: 'Attendance %',
-              data: [89, 92, 85, 91, 94],
+              label: 'Battalion Attendance %',
+              data: [88, 92, 85, 91, 94],
               borderColor: '#12A150',
               backgroundColor: 'rgba(18, 161, 80, 0.1)',
-              fill: true
+              fill: true,
+              tension: 0.35
             }]
           },
-          options: { responsive: true, maintainAspectRatio: false }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: { min: 70, max: 100 }
+            }
+          }
         });
       }
     });
